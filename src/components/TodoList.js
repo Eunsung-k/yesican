@@ -20,10 +20,13 @@ import {
   orderBy,
   where,
   onSnapshot,
+  getDoc,
 } from "firebase/firestore";
+import tailwindConfig from "../../tailwind.config";
 
 // DB의 todos 컬렉션 참조를 만듭니다. 컬렉션 사용시 잘못된 컬렉션 이름 사용을 방지합니다.
 const todoCollection = collection(db, "todos");
+const publicTodoCollection = collection (db, "todos");
 
 const handleLogout = async () => {
   await signOut();
@@ -33,38 +36,88 @@ const handleLogout = async () => {
 const TodoList = () => {
   // 상태를 관리하는 useState 훅을 사용하여 할 일 목록과 입력값을 초기화합니다.
   const [todos, setTodos] = useState([]);
+  const [publicTodos, setPublicTodos] = useState([]);
   const [input, setInput] = useState("");
+  const [publicInput, setPublicInput] = useState(""); // public 카테고리 인풋 추가. 
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedTime, setSelectedTime] = useState(null);
-  // const [userNickname, setUserNickname] = useState(null);
+  
+  //검색
+  const [searchInput, setSearchInput] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
+
+  //join
+  const [joinableTodoId, setKoinableTodoId] = useState(null);
+
+// 검색어 입력값이 변경될 때마다 검색 결과를 업데이트합니다.
+  useEffect(() => {
+    // 검색어가 비어있는 경우 모든 publicTodos를 검색 결과로 설정합니다.
+    if (searchInput.trim() === "") {
+      setSearchResults(publicTodos.filter((publicTodo) => publicTodo.isPublic));
+    } else {
+      // 검색어가 있는 경우 검색어를 포함하는 publicTodos를 검색 결과로 설정합니다.
+      const filteredResults = publicTodos.filter((publicTodo) =>
+        publicTodo.text.toLowerCase().includes(searchInput.toLowerCase())
+      );
+      setSearchResults(filteredResults);
+    }
+  }, [searchInput, publicTodos]);
 
   const { data, status } = useSession();
 
-  const getTodos = async () => {
-    // const q = query(todoCollection, orderBy("datetime", "asc"));
-    if (!data?.user?.name) return;
-
-    const q = query(
-      todoCollection,
-      where("userId", "==", data?.user?.id),
-      orderBy("datetime", "asc")
-    )
-    const unsubscribe = onSnapshot(q, (querySnapshot) => {
-      const newTodos = [];
-      querySnapshot.forEach((doc) => {
-        newTodos.push({ id: doc.id, ...doc.data() });
-      });
-      setTodos(newTodos);
-    });
-    return unsubscribe;
-  };
+  let completedTasks = 0;
+  let totalTasks = 0;
 
   useEffect(() => {
-    const unsubscribe = getTodos();
+    let userUnsubscribe;
+    let publicUnsubscribe;
+  
+    const getUserTodos = async () => {
+      if (!data?.user?.name) return;
+  
+      const userTodoQuery = query(
+        todoCollection,
+        where("userId", "==", data?.user?.id),
+        orderBy("datetime", "asc")
+      );
+  
+      userUnsubscribe = onSnapshot(userTodoQuery, (querySnapshot) => {
+        const newTodos = [];
+        querySnapshot.forEach((doc) => {
+          newTodos.push({ id: doc.id, ...doc.data() });
+        });
+        setTodos(newTodos);
+      });
+    };
+  
+    const getPublicTodos = async () => {
+      const publicTodoQuery = query(
+        publicTodoCollection,
+        orderBy("datetime", "asc")
+      );
+  
+      publicUnsubscribe = onSnapshot(publicTodoQuery, (querySnapshot) => {
+        const newPublicTodos = [];
+        querySnapshot.forEach((doc) => {
+          newPublicTodos.push({ id: doc.id, ...doc.data() });
+        });
+        setPublicTodos(newPublicTodos);
+      });
+    };
+  
+    getUserTodos();
+    getPublicTodos();
+  
     return () => {
-      unsubscribe;
-    }
+      if (userUnsubscribe) {
+        userUnsubscribe();
+      }
+      if (publicUnsubscribe) {
+        publicUnsubscribe();
+      }
+    };
   }, [data]);
+
 
   // addTodo 함수는 입력값을 이용하여 새로운 할 일을 목록에 추가하는 함수입니다.
   const addTodo = async() => {
@@ -77,6 +130,7 @@ const TodoList = () => {
       date: selectedDate,
       time: selectedTime,
       datetime: new Date(),
+      isPublic: false,
     });
 
     const newTodo = {id: docRef.id, text: input, completed: false, date: selectedDate, time: selectedTime };
@@ -84,23 +138,65 @@ const TodoList = () => {
     setInput("");
     setSelectedDate(null);
     setSelectedTime(null);
+    totalTasks++;
   };
-  
-  // toggleTodo 함수는 체크박스를 눌러 할 일의 완료 상태를 변경하는 함수입니다.
-  const toggleTodo = (id) => {
-    // 할 일 목록에서 해당 id를 가진 할 일의 완료 상태를 반전시킵니다.
-    const newTodos = todos.map((todo) => {
-      if(todo.id === id) {
-        const todoDoc = doc(todoCollection, id);
-        updateDoc(todoDoc, { completed: !todo.completed });
-        return { ...todo, completed: !todo.completed };
-      } else {
-        return todo;
-      }
-    });
 
-    setTodos(newTodos);
+  const addPublicTodo = async() => {
+    if (publicInput.trim() === "") return;
+    const docRef = await addDoc(publicTodoCollection, {
+      text: publicInput,
+      completed: false,
+      date: selectedDate,
+      time: selectedTime,
+      datetime: new Date(),
+      isPublic: true,
+    });
+    const newPublicTodo = {id: docRef.id, text: publicInput, completed: false, date: selectedDate, time: selectedTime};
+    setPublicTodos([...publicTodos, newPublicTodo]);
+    setPublicInput("");
+    setSelectedDate(null);
+    setSelectedTime(null);
   };
+
+  const toggleTodo = async (id, isPublic) => {
+    const collectionRef = isPublic ? publicTodoCollection : todoCollection;
+    const todoDocRef = doc(collectionRef, id);
+    const todoSnapshot = await getDoc(todoDocRef);
+
+    if(todoSnapshot.exists()) {
+      const todoData = todoSnapshot.data();
+      const updatedCompleted = !todoData.completed;
+      await updateDoc(todoDocRef, { completed: updatedCompleted});
+      const updatedTodos = isPublic ? [...publicTodos] : [...todos];
+      const todoIndex = updatedTodos.findIndex(todo => todo.id === id);
+
+      if(todoIndex !== -1) {
+        updatedTodos[todoIndex] = {...updatedTodos[todoIndex], completed: updatedCompleted};
+
+        if(isPublic) {
+          setPublicTodos(updatedTodos);
+        } else {
+          setTodos(updatedTodos);
+        }
+      }
+    }
+  };  
+  // toggleTodo 함수는 체크박스를 눌러 할 일의 완료 상태를 변경하는 함수입니다.
+  // const toggleTodo = (id) => {
+  //   // 할 일 목록에서 해당 id를 가진 할 일의 완료 상태를 반전시킵니다.
+  //   const newTodos = todos.map((todo) => {
+  //     if(todo.id === id) {
+  //       const todoDoc = doc(todoCollection, id);
+  //       updateDoc(todoDoc, { completed: !todo.completed });
+  //       return { ...todo, completed: !todo.completed };
+  //     } else {
+  //       return todo;
+  //     }
+  //   });
+
+  //   setTodos(newTodos);
+  // };
+
   
   // deleteTodo 함수는 할 일을 목록에서 삭제하는 함수입니다.
     // 해당 id를 가진 할 일을 제외한 나머지 목록을 새로운 상태로 저장합니다.
@@ -116,6 +212,26 @@ const TodoList = () => {
     );
   };
 
+  // Join 버튼을 클릭할 때 실행되는 함수
+  const joinTodo = (id) => {
+    // Join 가능한 publicTodo의 id를 설정합니다.
+    setJoinableTodoId(id);
+  };
+
+  // Join 가능한 publicTodo의 id를 이용하여 해당 publicTodo를 가져오는 함수
+  const getJoinableTodo = (id) => {
+    return publicTodos.find((publicTodo) => publicTodo.id === id);
+  };
+
+  // Join 가능한 publicTodo를 가져오고 해당 publicTodo의 구성원 수행 여부를 확인할 수 있게 합니다.
+  const joinableTodo = joinableTodoId ? getJoinableTodo(joinableTodoId) : null;
+
+  // Join 가능한 publicTodo에 대한 구성원 수행 여부 체크 기능
+  const checkMemberCompletion = (memberId) => {
+    // memberId에 해당하는 사용자의 수행 여부를 확인하는 로직을 추가합니다.
+    // 구성원의 수행 여부를 표시하거나 처리할 수 있는 컴포넌트를 렌더링합니다.
+  };
+  
   return (
     <div className={styles.container}>
       <div className="w-1/2 pr-4">
@@ -127,6 +243,7 @@ const TodoList = () => {
         {data?.user?.name}'s Todo List
       </h1>
       <div className={styles.inputContainer}></div>
+      Personal Todo
       <input
         type="text"
         className="shadow-lg w-full p-1 mb-4 border border-gray-300 rounded"
@@ -155,7 +272,7 @@ const TodoList = () => {
           Add Todo
         </button>
         <div className="w-1/2 pr-4">
-        <h2 className="text-lg font-medium mb-2">Todo List</h2>
+        <h2 className="text-lg font-medium mb-2">Personal Todo List</h2>
         <ul>
           {todos
               .filter((todo) => !todo.completed)
@@ -178,6 +295,93 @@ const TodoList = () => {
                   key={todo.id}
                   todo={todo}
                   onDelete={() => deleteTodo(todo.id)}
+                />
+              ))} 
+        </ul>
+      </div>  
+    </div>
+
+{/* public section rendering */}
+    <div className={styles.inputContainer}></div>
+      Public Todo
+      <input
+       type="text"
+       className="shadow-lg w-full p-1 mb-4 border border-gray-300 rounded"
+       value={searchInput}
+       onChange={(e) => setSearchInput(e.target.value)}
+    />
+
+{/* 검색 결과를 출력합니다. */}
+      <ul>
+        {searchResults.map((publicTodo) => (
+          <TodoItem
+            key={publicTodo.id}
+            todo={publicTodo}
+            onToggle={() => toggleTodo(publicTodo.id, publicTodo.isPublic)}
+          />
+        ))}
+      </ul>
+      <input
+        type="text"
+        className="shadow-lg w-full p-1 mb-4 border border-gray-300 rounded"
+        value={publicInput}
+        onChange={(e) => setPublicInput(e.target.value)}
+      />
+      <input
+        type="date"
+        className={styles.itemInput}
+        value={selectedDate}
+        onChange={(e) => setSelectedDate(e.target.value)} 
+        />
+      <input
+        type="time"
+        className={styles.itemInput}
+        value={selectedTime}
+        onChange={(e) => setSelectedTime(e.target.value)}
+      />
+      <div class="grid">
+        <button
+          className="w-40 justify-self-end p-1 mb-4 bg-pink-500 text-white border border-pink-500 rounded hover:bg-white hover:text-pink-500"
+          onClick={() => {
+            addPublicTodo();
+          }}
+        >
+          Add Todo
+        </button>
+        <div className="w-1/2 pr-4">
+        <h2 className="text-lg font-medium mb-2">Public Todo List</h2>
+        <ul>
+          {publicTodos
+              .filter((publicTodo) => publicTodo.isPublic)
+              .filter((publicTodo) => !publicTodo.completed)
+              .map((publicTodo) => (
+                <TodoItem
+                  key={publicTodo.id}
+                  todo={publicTodo}
+                  onToggle={() => toggleTodo(publicTodo.id)}
+                />
+              ))}
+        </ul>
+        {/* Join 가능한 Public Todo 출력 */}
+        {joinableTodo && (
+          <div>
+            <h3>Joinable Todo: {joinableTodo.text}</h3>
+            {/* Join 가능한 Public Todo의 구성원 수행 여부 확인 */}
+            {/* ... */}
+          </div>
+        )}
+      </div>
+      <div className="w-1/2 pl-4">
+        <h2 className="text-lg font-medium mb-2">Completed Todo</h2>
+        <ul>
+          {publicTodos
+              .filter((publicTodo) => publicTodo.isPublic)
+              .filter((publicTodo) => publicTodo.completed)
+              .map((publicTodo) => (
+                <TodoItem
+                  key={publicTodo.id}
+                  todo={publicTodo}
+                  onDelete={() => deleteTodo(publicTodo.id)}
                 />
               ))} 
         </ul>

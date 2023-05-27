@@ -313,7 +313,9 @@ const TodoList = () => {
 
 {/* 검색 결과를 출력합니다. */}
       <ul>
-        {searchResults.map((publicTodo) => (
+        {searchResults
+        .filter((publicTodo) => publicTodo.isPublic)
+        .map((publicTodo) => (
           <TodoItem
             key={publicTodo.id}
             todo={publicTodo}

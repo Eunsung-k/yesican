@@ -13,7 +13,6 @@ import {
   collection,
   query,
   doc,
-  getDocs,
   addDoc,
   updateDoc,
   deleteDoc,
@@ -26,7 +25,7 @@ import tailwindConfig from "../../tailwind.config";
 
 // DB의 todos 컬렉션 참조를 만듭니다. 컬렉션 사용시 잘못된 컬렉션 이름 사용을 방지합니다.
 const todoCollection = collection(db, "todos");
-const publicTodoCollection = collection (db, "todos");
+const publicTodoCollection = collection (db, "publicTodos");
 
 const handleLogout = async () => {
   await signOut();
@@ -34,20 +33,19 @@ const handleLogout = async () => {
 
 // TodoList 컴포넌트를 정의합니다.
 const TodoList = () => {
-  // 상태를 관리하는 useState 훅을 사용하여 할 일 목록과 입력값을 초기화합니다.
   const [todos, setTodos] = useState([]);
   const [publicTodos, setPublicTodos] = useState([]);
   const [input, setInput] = useState("");
   const [publicInput, setPublicInput] = useState(""); // public 카테고리 인풋 추가. 
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedTime, setSelectedTime] = useState(null);
-  
+
   //검색
   const [searchInput, setSearchInput] = useState("");
   const [searchResults, setSearchResults] = useState([]);
 
   //join
-  const [joinableTodoId, setKoinableTodoId] = useState(null);
+  const [joinableTodoId, setJoinableTodoId] = useState(null);
 
 // 검색어 입력값이 변경될 때마다 검색 결과를 업데이트합니다.
   useEffect(() => {
@@ -123,6 +121,7 @@ const TodoList = () => {
   const addTodo = async() => {
     // 입력값이 비어있는 경우 함수를 종료합니다.
     if (input.trim() === "") return;
+    const todoCollection = collection(db, "todos", data?.user?.id);
     const docRef = await addDoc(todoCollection, {
       userId: data?.user?.id,
       text: input,
@@ -138,11 +137,11 @@ const TodoList = () => {
     setInput("");
     setSelectedDate(null);
     setSelectedTime(null);
-    totalTasks++;
   };
 
   const addPublicTodo = async() => {
     if (publicInput.trim() === "") return;
+    const publicTodocollection = collection(db, "todos");
     const docRef = await addDoc(publicTodoCollection, {
       text: publicInput,
       completed: false,

@@ -13,6 +13,7 @@ import {
   collection,
   query,
   doc,
+  getDocs,
   addDoc,
   updateDoc,
   deleteDoc,
@@ -25,7 +26,7 @@ import tailwindConfig from "../../tailwind.config";
 
 // DB의 todos 컬렉션 참조를 만듭니다. 컬렉션 사용시 잘못된 컬렉션 이름 사용을 방지합니다.
 const todoCollection = collection(db, "todos");
-const publicTodoCollection = collection (db, "publicTodos");
+const publicTodoCollection = collection (db, "todos");
 
 const handleLogout = async () => {
   await signOut();
@@ -33,13 +34,14 @@ const handleLogout = async () => {
 
 // TodoList 컴포넌트를 정의합니다.
 const TodoList = () => {
+  // 상태를 관리하는 useState 훅을 사용하여 할 일 목록과 입력값을 초기화합니다.
   const [todos, setTodos] = useState([]);
   const [publicTodos, setPublicTodos] = useState([]);
   const [input, setInput] = useState("");
   const [publicInput, setPublicInput] = useState(""); // public 카테고리 인풋 추가. 
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedTime, setSelectedTime] = useState(null);
-
+  
   //검색
   const [searchInput, setSearchInput] = useState("");
   const [searchResults, setSearchResults] = useState([]);
@@ -121,7 +123,6 @@ const TodoList = () => {
   const addTodo = async() => {
     // 입력값이 비어있는 경우 함수를 종료합니다.
     if (input.trim() === "") return;
-    const todoCollection = collection(db, "todos", data?.user?.id);
     const docRef = await addDoc(todoCollection, {
       userId: data?.user?.id,
       text: input,
@@ -137,11 +138,11 @@ const TodoList = () => {
     setInput("");
     setSelectedDate(null);
     setSelectedTime(null);
+    totalTasks++;
   };
 
   const addPublicTodo = async() => {
     if (publicInput.trim() === "") return;
-    const publicTodocollection = collection(db, "todos");
     const docRef = await addDoc(publicTodoCollection, {
       text: publicInput,
       completed: false,
@@ -212,7 +213,7 @@ const TodoList = () => {
   };
 
   // Join 버튼을 클릭할 때 실행되는 함수
-  const joinTodo = (id) => {
+  const joinPublicTodo = (id) => {
     // Join 가능한 publicTodo의 id를 설정합니다.
     setJoinableTodoId(id);
   };
@@ -312,14 +313,13 @@ const TodoList = () => {
 
 {/* 검색 결과를 출력합니다. */}
       <ul>
-        {searchResults
-        .filter((publicTodo) => publicTodo.isPublic)
-        .map((publicTodo) => (
-          <TodoItem
-            key={publicTodo.id}
-            todo={publicTodo}
-            onToggle={() => toggleTodo(publicTodo.id, publicTodo.isPublic)}
-          />
+        {searchResults.map((result) => (
+          <li key={result.id}>
+          <span>{result.text}</span>
+          {!result.joined && (
+            <button onClick={() => joinPublicTodo(result.id)}>Join</button>
+          )}
+        </li>
         ))}
       </ul>
       <input
@@ -354,7 +354,7 @@ const TodoList = () => {
         <ul>
           {publicTodos
               .filter((publicTodo) => publicTodo.isPublic)
-              .filter((publicTodo) => !publicTodo.completed)
+              .filter((publicTodo) => publicTodo.completed)
               .map((publicTodo) => (
                 <TodoItem
                   key={publicTodo.id}
@@ -384,7 +384,8 @@ const TodoList = () => {
                   todo={publicTodo}
                   onDelete={() => deleteTodo(publicTodo.id)}
                 />
-              ))} 
+              ))
+            } 
         </ul>
       </div>
     </div>

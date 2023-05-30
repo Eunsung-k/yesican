@@ -367,6 +367,15 @@ const TodoList = () => {
         {joinableTodo && (
           <div>
             <h3>Joinable Todo: {joinableTodo.text}</h3>
+            <input
+              type="checkbox"
+              checked={joinableTodo.completed}
+              onChange={() => toggleTodo(joinableTodo.id)}
+            />
+            <label>Completed</label>
+            <button onClick={() => deleteTodo(joinableTodo.id)}>
+              Delete
+            </button>
             {/* Join 가능한 Public Todo의 구성원 수행 여부 확인 */}
             {/* ... */}
           </div>

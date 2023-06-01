@@ -150,7 +150,8 @@ const TodoList = () => {
       time: selectedTime,
       datetime: new Date(),
       isPublic: true,
-    });
+      administratorId: data?.user?.id, // Set the administrator ID
+  });
     const newPublicTodo = {id: docRef.id, text: publicInput, completed: false, date: selectedDate, time: selectedTime};
     setPublicTodos([...publicTodos, newPublicTodo]);
     setPublicInput("");
@@ -158,29 +159,40 @@ const TodoList = () => {
     setSelectedTime(null);
   };
 
-  const toggleTodo = async (id, isPublic) => {
-    const collectionRef = isPublic ? publicTodoCollection : todoCollection;
-    const todoDocRef = doc(collectionRef, id);
-    const todoSnapshot = await getDoc(todoDocRef);
+const toggleTodo = async (id, isPublic) => {
+  const collectionRef = isPublic ? publicTodoCollection : todoCollection;
+  const todoDocRef = doc(collectionRef, id);
+  const todoSnapshot = await getDoc(todoDocRef);
 
-    if(todoSnapshot.exists()) {
-      const todoData = todoSnapshot.data();
-      const updatedCompleted = !todoData.completed;
-      await updateDoc(todoDocRef, { completed: updatedCompleted});
-      const updatedTodos = isPublic ? [...publicTodos] : [...todos];
-      const todoIndex = updatedTodos.findIndex(todo => todo.id === id);
+ 
+  
+  if (todoSnapshot.exists()) {
+    
+  
 
-      if(todoIndex !== -1) {
-        updatedTodos[todoIndex] = {...updatedTodos[todoIndex], completed: updatedCompleted};
+    const todoData = todoSnapshot.data();
+    const updatedCompleted = !todoData.completed;
+    
+    await updateDoc(todoDocRef, { completed: updatedCompleted });
+    
+    const updatedTodos = isPublic ? [...publicTodos] : [...todos];
+    const todoIndex = updatedTodos.findIndex((todo) => todo.id === id);
 
-        if(isPublic) {
-          setPublicTodos(updatedTodos);
-        } else {
-          setTodos(updatedTodos);
-        }
+    
+    if (todoIndex !== -1) {
+      updatedTodos[todoIndex] = { ...updatedTodos[todoIndex], completed: updatedCompleted };
+      
+      if (isPublic) {
+        setPublicTodos(updatedTodos);
+      } else {
+        setTodos(updatedTodos);
       }
     }
-  };  
+  
+}
+};
+
+  
   // toggleTodo 함수는 체크박스를 눌러 할 일의 완료 상태를 변경하는 함수입니다.
   // const toggleTodo = (id) => {
   //   // 할 일 목록에서 해당 id를 가진 할 일의 완료 상태를 반전시킵니다.
@@ -202,15 +214,32 @@ const TodoList = () => {
     // 해당 id를 가진 할 일을 제외한 나머지 목록을 새로운 상태로 저장합니다.
     // setTodos(todos.filter((todo) => todo.id !== id));
     // 해당 id를 가진 할 일을 찾아 삭제합니다.
-  const deleteTodo = (id) => {
-    const todoDoc = doc(todoCollection, id);
-    deleteDoc(todoDoc);
-    setTodos(
-      todos.filter((todo) => {
+    const deleteTodo = async (id) => {
+      const todoDoc = doc(todoCollection, id);
+      const todoSnapshot = await getDoc(todoDoc);
+    
+      if (todoSnapshot.exists()) {
+        const todoData = todoSnapshot.data();
+    
+        // Check if the user is the administrator before allowing the deletion
+        if (todoData.isPublic) {
+          if (todoData.administratorId === data?.user?.id){
+          await deleteDoc(todoDoc);
+          setPublicTodos(
+            publicTodos.filter((publicTodo) => publicTodo.id !== id)
+          );
+          }
+        } else {
+          deleteDoc(todoDoc);
+          setTodos(todos.filter((todo) => {
         return todo.id !== id;
       })
-    );
-  };
+          );
+
+        }
+      }
+    };
+    
 
   // Join 버튼을 클릭할 때 실행되는 함수
   const joinPublicTodo = (id) => {
@@ -281,6 +310,7 @@ const TodoList = () => {
                   key={todo.id}
                   todo={todo}
                   onToggle={() => toggleTodo(todo.id)}
+                  onDelete={() => deleteTodo(todo.id)}
                 />
               ))}
         </ul>
@@ -294,6 +324,7 @@ const TodoList = () => {
                 <TodoItem
                   key={todo.id}
                   todo={todo}
+                  onToggle={() => toggleTodo(todo.id)}
                   onDelete={() => deleteTodo(todo.id)}
                 />
               ))} 

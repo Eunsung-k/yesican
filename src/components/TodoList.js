@@ -41,6 +41,13 @@ const TodoList = () => {
   const [publicInput, setPublicInput] = useState(""); // public 카테고리 인풋 추가. 
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedTime, setSelectedTime] = useState(null);
+
+    // personal Todo 달성도를 계산하는 함수
+    const calculateCompletionPercentage = () => {
+      const completedCount = todos.filter((todo) => todo.completed).length;
+      const totalCount = todos.length;
+      return totalCount !== 0 ? (completedCount / totalCount) * 100 : 0;
+    };
   
   //검색
   const [searchInput, setSearchInput] = useState("");
@@ -302,6 +309,38 @@ const toggleTodo = async (id, isPublic) => {
         </button>
         <div className="w-1/2 pr-4">
         <h2 className="text-lg font-medium mb-2">Personal Todo List</h2>
+         {/* personal Todo 달성도를 원 그래프로 시각화 */}
+         <div className="flex items-center justify-center">
+          <svg width="120" height="120" viewBox="0 0 120 120">
+            <circle
+              cx="60"
+              cy="60"
+              r="50"
+              fill="none"
+              stroke="#e6e6e6"
+              strokeWidth="10"
+            />
+            <circle
+              cx="60"
+              cy="60"
+              r="50"
+              fill="none"
+              stroke="#ff5d5d"
+              strokeWidth="10"
+              strokeDasharray={`${calculateCompletionPercentage()}, 100`}
+              transform="rotate(-90) translate(-120)"
+            />
+            <text
+              x="50%"
+              y="50%"
+              dominantBaseline="middle"
+              textAnchor="middle"
+              fontSize="18"
+            >
+              달성도
+            </text>
+          </svg>
+        </div>
         <ul>
           {todos
               .filter((todo) => !todo.completed)

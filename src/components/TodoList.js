@@ -42,12 +42,19 @@ const TodoList = () => {
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedTime, setSelectedTime] = useState(null);
 
-    // personal Todo 달성도를 계산하는 함수
-    const calculateCompletionPercentage = () => {
-      const completedCount = todos.filter((todo) => todo.completed).length;
-      const totalCount = todos.length;
-      return totalCount !== 0 ? (completedCount / totalCount) * 100 : 0;
-    };
+// personal Todo 달성도를 계산하는 함수
+const calculateCompletionPercentage = () => {
+  const completedCount = todos.filter((todo) => todo.completed).length;
+  const totalCount = todos.length;
+  const percentage = totalCount !== 0 ? (completedCount / totalCount) * 100 : 0;
+  const circumference = 2 * Math.PI * 50; // 원의 둘레
+
+  // strokeDasharray에 적용할 값 계산
+  const strokeLength = (circumference * percentage) / 100;
+  const gapLength = circumference - strokeLength;
+
+  return `${strokeLength}, ${gapLength}`;
+};
   
   //검색
   const [searchInput, setSearchInput] = useState("");

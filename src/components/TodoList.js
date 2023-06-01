@@ -348,7 +348,14 @@ const toggleTodo = async (id, isPublic) => {
           <li key={result.id}>
           <span>{result.text}</span>
           {!result.joined && (
-            <button onClick={() => joinPublicTodo(result.id)}>Join</button>
+            <button 
+              onClick={() => 
+                joinPublicTodo(result.id)
+
+              }
+            >
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Join
+            </button>
           )}
         </li>
         ))}
@@ -391,22 +398,34 @@ const toggleTodo = async (id, isPublic) => {
                   key={publicTodo.id}
                   todo={publicTodo}
                   onToggle={() => toggleTodo(publicTodo.id)}
+                  // onDelete={() => deleteTodo(publicTodo.id)}
                 />
               ))}
         </ul>
         {/* Join 가능한 Public Todo 출력 */}
         {joinableTodo && (
-          <div>
-            <h3>Joinable Todo: {joinableTodo.text}</h3>
-            <input
+          <div class="grid">
+            {/* <h3>Joinable Todo: {joinableTodo.text}</h3> */}
+            {/* <input
               type="checkbox"
               checked={joinableTodo.completed}
               onChange={() => toggleTodo(joinableTodo.id)}
-            />
-            <label>Completed</label>
-            <button onClick={() => deleteTodo(joinableTodo.id)}>
+            /> */}
+            <ul>
+              {publicTodos
+                  .filter((joinableTodo) => !joinableTodo.completed)
+                  .map((joinableTodo) => (
+                    <TodoItem
+                      key={joinableTodo.id}
+                      todo={joinableTodo}
+                      onToggle={() => toggleTodo(joinableTodo.id)}
+                      onDelete={() => deleteTodo(joinableTodo.id)}
+                    />
+                  ))}
+            </ul>
+            {/* <button onClick={() => deleteTodo(joinableTodo.id)}>
               Delete
-            </button>
+            </button> */}
             {/* Join 가능한 Public Todo의 구성원 수행 여부 확인 */}
             {/* ... */}
           </div>
@@ -422,6 +441,7 @@ const toggleTodo = async (id, isPublic) => {
                 <TodoItem
                   key={publicTodo.id}
                   todo={publicTodo}
+                  onToggle={() => toggleTodo(publicTodo.id)}
                   onDelete={() => deleteTodo(publicTodo.id)}
                 />
               ))

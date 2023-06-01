@@ -42,19 +42,34 @@ const TodoList = () => {
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedTime, setSelectedTime] = useState(null);
 
-// personal Todo 달성도를 계산하는 함수
-const calculateCompletionPercentage = () => {
-  const completedCount = todos.filter((todo) => todo.completed).length;
-  const totalCount = todos.length;
-  const percentage = totalCount !== 0 ? (completedCount / totalCount) * 100 : 0;
-  const circumference = 2 * Math.PI * 50; // 원의 둘레
+  // personal 달성도 원 그래프로 시각화
+  const personalCompletionPercentage = () => {
+    const completedCount = todos.filter((todo) => todo.completed).length;
+    const totalCount = todos.length;
+    const percentage = totalCount !== 0 ? Math.round((completedCount / totalCount) * 100) : 0;
+    const circumference = 2 * Math.PI * 50; // 원의 둘레
+  
+    // strokeDasharray에 적용할 값 계산
+    const strokeLength = (circumference * percentage) / 100;
+    const gapLength = circumference - strokeLength;
+  
+    return `${strokeLength}, ${gapLength}`;
+  };
 
-  // strokeDasharray에 적용할 값 계산
-  const strokeLength = (circumference * percentage) / 100;
-  const gapLength = circumference - strokeLength;
+  // 달성도를 0-100사이 숫자로 리턴
+  const personalCompletionPercentageindex = () => {
+    const completedCount = todos.filter((todo) => todo.completed).length;
+    const totalCount = todos.length;
+    const percentage = totalCount !== 0 ? Math.round((completedCount / totalCount) * 100) : 0;
+    const rangeStart = 0; // 범위 시작값
+    const rangeEnd = 100; // 범위 끝값
+    
+    // percentage 값을 0-100 범위로 변환
+    const scaledValue = (percentage * (rangeEnd - rangeStart)) / 100 + rangeStart;
+    
+    return scaledValue;
+  };
 
-  return `${strokeLength}, ${gapLength}`;
-};
   
   //검색
   const [searchInput, setSearchInput] = useState("");
@@ -334,7 +349,7 @@ const toggleTodo = async (id, isPublic) => {
               fill="none"
               stroke="#ff5d5d"
               strokeWidth="10"
-              strokeDasharray={`${calculateCompletionPercentage()}, 100`}
+              strokeDasharray={`${personalCompletionPercentage()}, 100`}
               transform="rotate(-90) translate(-120)"
             />
             <text
@@ -344,7 +359,8 @@ const toggleTodo = async (id, isPublic) => {
               textAnchor="middle"
               fontSize="18"
             >
-              달성도
+              {/* 0-100사이 퍼센트 숫자를 표시 */}
+               {personalCompletionPercentageindex()}%
             </text>
           </svg>
         </div>

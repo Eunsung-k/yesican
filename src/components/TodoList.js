@@ -96,9 +96,6 @@ const TodoList = () => {
 
   const { data, status } = useSession();
 
-  let completedTasks = 0;
-  let totalTasks = 0;
-
   useEffect(() => {
     let userUnsubscribe;
     let publicUnsubscribe;
@@ -252,68 +249,46 @@ const toggleTodo = async (id, isPublic) => {
         }
       }
     };
-  
-    // 사용자가 'publicTodo'에 join하는 함수
-const joinPublicTodo = (userId, publicTodoId) => {
-  // 'myPublicTodo' 컬렉션에 사용자 문서 가져오기
-  const userDocRef = db.collection('myPublicTodo').doc(userId);
-  userDocRef.get().then((doc) => {
-    if (doc.exists) {
-      // 이미 해당 사용자의 문서가 존재하면 할 일 ID를 추가
-      const todoIds = doc.data().todoIds || [];
-      if (!todoIds.includes(publicTodoId)) {
-        todoIds.push(publicTodoId);
-      }
-      // 할 일 ID 업데이트
-      userDocRef.update({ todoIds: todoIds })
-        .then(() => {
-          console.log('Join completed successfully!');
-        })
-        .catch((error) => {
-          console.error('Error updating user document:', error);
-        });
-    } else {
-      // 해당 사용자의 문서가 존재하지 않으면 새로 생성하고 할 일 ID를 추가
-      const data = { todoIds: [publicTodoId] };
-      userDocRef.set(data)
-        .then(() => {
-          console.log('Join completed successfully!');
-        })
-        .catch((error) => {
-          console.error('Error creating user document:', error);
-        });
-    }
-  }).catch((error) => {
-    console.error('Error getting user document:', error);
-  });
-}
 
-// 사용자가 'publicTodo'의 할 일을 체크하는 함수
-const checkPublicTodo = (userId, publicTodoId, checked) => {
-  const userDocRef = db.collection('myPublicTodo').doc(userId);
-  userDocRef.get().then((doc) => {
-    if (doc.exists) {
-      const todoIds = doc.data().todoIds || [];
-      if (todoIds.includes(publicTodoId)) {
-        // 해당 할 일이 사용자의 목록에 있으면 수행 여부를 업데이트
-        const todoData = { checked: checked };
-        db.collection('publicTodo').doc(publicTodoId).update(todoData)
+// 사용자가 'publicTodo'에 join하는 함수
+const joinPublicTodo = (userId, publicTodoId) => {
+  // 'publicTodos'에서 해당 publicTodo 가져오기
+  const publicTodoRef = doc(db, "publicTodos", doc.id); // publicTodo에 입력 안되는 문제 해결하고 다시 시험해봐야 함.
+  getDoc(publicTodoRef)
+    .then((publicTodoSnapshot) => {
+      if (publicTodoSnapshot.exists()) {
+        // publicTodo의 할 일 데이터 가져오기
+        const publicTodoData = publicTodoSnapshot.data();
+
+        // 'myPublicTodos'에서 사용자 문서 가져오기
+        const userDocRef = doc(db, "myPublicTodos", userId);
+        return getDoc(userDocRef)
+          .then((userDocSnapshot) => {
+            if (userDocSnapshot.exists()) {
+              // 이미 해당 사용자의 문서가 존재하면 할 일 추가
+              const todos = userDocSnapshot.data().todos || [];
+              const updatedTodos = [...todos, publicTodoData.todo];
+              return updateDoc(userDocRef, { todos: updatedTodos });
+            } else {
+              // 해당 사용자의 문서가 존재하지 않으면 새로 생성하고 할 일 추가
+              const data = { todos: [publicTodoData.todo] };
+              return setDoc(userDocRef, data);
+            }
+          })
           .then(() => {
-            console.log('PublicTodo checked successfully!');
+            console.log('Join completed successfully!');
           })
           .catch((error) => {
-            console.error('Error updating publicTodo:', error);
+            console.error('Error updating/creating user document:', error);
           });
       } else {
-        console.error('User is not joined to the publicTodo!');
+        console.log('Public todo does not exist!');
       }
-    } else {
-      console.error('User document does not exist!');
-    }
-  }).catch((error) => {
-    console.error('Error getting user document:', error);
-  });
-}
+    })
+    .catch((error) => {
+      console.error('Error getting publicTodo:', error);
+    });
+};
 
 // 사용 예시: joinPublicTodo('userId', 'publicTodoId');
 // 사용 예시: checkPublicTodo('userId', 'publicTodoId', true);
@@ -461,7 +436,7 @@ const checkPublicTodo = (userId, publicTodoId, checked) => {
           {!result.joined && (
             <button 
               onClick={() => 
-                joinPublicTodo(result.id)
+                joinPublicTodo()
 
               }
             >

@@ -1,8 +1,3 @@
-/* 
-  할 일 목록을 관리하고 렌더링하는 주요 컴포넌트입니다.
-  상태 관리를 위해 `useState` 훅을 사용하여 할 일 목록과 입력값을 관리합니다.
-  할 일 목록의 추가, 삭제, 완료 상태 변경 등의 기능을 구현하였습니다.
-*/
 import React, { useState, useEffect } from "react";
 import { signOut, useSession } from "next-auth/react";
 import TodoItem from "@/components/TodoItem";
@@ -13,7 +8,6 @@ import {
   collection,
   query,
   doc,
-  getDocs,
   addDoc,
   updateDoc,
   deleteDoc,
@@ -21,6 +15,8 @@ import {
   where,
   onSnapshot,
   getDoc,
+  setDoc,
+  arrayUnion,
 } from "firebase/firestore";
 import tailwindConfig from "../../tailwind.config";
 
@@ -96,9 +92,6 @@ const TodoList = () => {
 
   const { data, status } = useSession();
 
-  let completedTasks = 0;
-  let totalTasks = 0;
-
   useEffect(() => {
     let userUnsubscribe;
     let publicUnsubscribe;
@@ -169,19 +162,18 @@ const TodoList = () => {
     setInput("");
     setSelectedDate(null);
     setSelectedTime(null);
-    totalTasks++;
   };
 
   const addPublicTodo = async() => {
     if (publicInput.trim() === "") return;
     const docRef = await addDoc(publicTodoCollection, {
+      administratorId: data?.user?.id, // Set the administrator ID
       text: publicInput,
       completed: false,
       date: selectedDate,
       time: selectedTime,
       datetime: new Date(),
       isPublic: true,
-      administratorId: data?.user?.id, // Set the administrator ID
   });
     const newPublicTodo = {id: docRef.id, text: publicInput, completed: false, date: selectedDate, time: selectedTime};
     setPublicTodos([...publicTodos, newPublicTodo]);
@@ -190,38 +182,31 @@ const TodoList = () => {
     setSelectedTime(null);
   };
 
-const toggleTodo = async (id, isPublic) => {
-  const collectionRef = isPublic ? publicTodoCollection : todoCollection;
-  const todoDocRef = doc(collectionRef, id);
-  const todoSnapshot = await getDoc(todoDocRef);
-
- 
-  
-  if (todoSnapshot.exists()) {
+  const toggleTodo = async (id, isPublic) => {
+    const collectionRef = isPublic ? publicTodoCollection : todoCollection;
+    const todoDocRef = doc(collectionRef, id);
+    const todoSnapshot = await getDoc(todoDocRef);
     
-  
-
-    const todoData = todoSnapshot.data();
-    const updatedCompleted = !todoData.completed;
+    if (todoSnapshot.exists()) {
     
-    await updateDoc(todoDocRef, { completed: updatedCompleted });
-    
-    const updatedTodos = isPublic ? [...publicTodos] : [...todos];
-    const todoIndex = updatedTodos.findIndex((todo) => todo.id === id);
-
-    
-    if (todoIndex !== -1) {
-      updatedTodos[todoIndex] = { ...updatedTodos[todoIndex], completed: updatedCompleted };
+      const todoData = todoSnapshot.data();
+      const updatedCompleted = !todoData.completed;
       
-      if (isPublic) {
-        setPublicTodos(updatedTodos);
-      } else {
-        setTodos(updatedTodos);
-      }
-    }
-  
-}
-};
+      await updateDoc(todoDocRef, { completed: updatedCompleted });
+      
+      const updatedTodos = isPublic ? [...publicTodos] : [...todos];
+      const todoIndex = updatedTodos.findIndex((todo) => todo.id === id);
+
+      
+      if (todoIndex !== -1) {
+        updatedTodos[todoIndex] = { ...updatedTodos[todoIndex], completed: updatedCompleted };
+        
+        if (isPublic) {
+          setPublicTodos(updatedTodos);
+        } else {
+          setTodos(updatedTodos);
+        }
+      }}};
   
   // deleteTodo 함수는 할 일을 목록에서 삭제하는 함수입니다.
     // 해당 id를 가진 할 일을 제외한 나머지 목록을 새로운 상태로 저장합니다.
@@ -254,70 +239,44 @@ const toggleTodo = async (id, isPublic) => {
     };
   
     // 사용자가 'publicTodo'에 join하는 함수
-const joinPublicTodo = (userId, publicTodoId) => {
-  // 'myPublicTodo' 컬렉션에 사용자 문서 가져오기
-  const userDocRef = db.collection('myPublicTodo').doc(userId);
-  userDocRef.get().then((doc) => {
-    if (doc.exists) {
-      // 이미 해당 사용자의 문서가 존재하면 할 일 ID를 추가
-      const todoIds = doc.data().todoIds || [];
-      if (!todoIds.includes(publicTodoId)) {
-        todoIds.push(publicTodoId);
-      }
-      // 할 일 ID 업데이트
-      userDocRef.update({ todoIds: todoIds })
-        .then(() => {
-          console.log('Join completed successfully!');
+    const joinPublicTodo = (userId, publicTodoId) => {
+      // 'publicTodos'에서 해당 publicTodo 가져오기
+      const publicTodoRef = doc(db, "publicTodos", publicTodoId);
+      getDoc(publicTodoRef)
+        .then((publicTodoSnapshot) => {
+          if (publicTodoSnapshot.exists()) {
+            // publicTodo의 할 일 데이터 가져오기
+            const publicTodoData = publicTodoSnapshot.data();
+
+            // 'myPublicTodos'에서 사용자 문서 가져오기
+            const userDocRef = doc(db, "myPublicTodos", userId);
+            return getDoc(userDocRef)
+              .then((userDocSnapshot) => {
+                if (userDocSnapshot.exists()) {
+                  // 이미 해당 사용자의 문서가 존재하면 할 일 추가
+                  const todos = userDocSnapshot.data().todos || [];
+                  const updatedTodos = [...todos, publicTodoData.todo];
+                  return updateDoc(userDocRef, { todos: updatedTodos });
+                } else {
+                  // 해당 사용자의 문서가 존재하지 않으면 새로 생성하고 할 일 추가
+                  const data = { todos: [publicTodoData.todo] };
+                  return setDoc(userDocRef, data);
+                }
+              })
+              .then(() => {
+                console.log('Join completed successfully!');
+              })
+              .catch((error) => {
+                console.error('Error updating/creating user document:', error);
+              });
+          } else {
+            console.log('Public todo does not exist!');
+          }
         })
         .catch((error) => {
-          console.error('Error updating user document:', error);
+          console.error('Error getting publicTodo:', error);
         });
-    } else {
-      // 해당 사용자의 문서가 존재하지 않으면 새로 생성하고 할 일 ID를 추가
-      const data = { todoIds: [publicTodoId] };
-      userDocRef.set(data)
-        .then(() => {
-          console.log('Join completed successfully!');
-        })
-        .catch((error) => {
-          console.error('Error creating user document:', error);
-        });
-    }
-  }).catch((error) => {
-    console.error('Error getting user document:', error);
-  });
-}
-
-// 사용자가 'publicTodo'의 할 일을 체크하는 함수
-const checkPublicTodo = (userId, publicTodoId, checked) => {
-  const userDocRef = db.collection('myPublicTodo').doc(userId);
-  userDocRef.get().then((doc) => {
-    if (doc.exists) {
-      const todoIds = doc.data().todoIds || [];
-      if (todoIds.includes(publicTodoId)) {
-        // 해당 할 일이 사용자의 목록에 있으면 수행 여부를 업데이트
-        const todoData = { checked: checked };
-        db.collection('publicTodo').doc(publicTodoId).update(todoData)
-          .then(() => {
-            console.log('PublicTodo checked successfully!');
-          })
-          .catch((error) => {
-            console.error('Error updating publicTodo:', error);
-          });
-      } else {
-        console.error('User is not joined to the publicTodo!');
-      }
-    } else {
-      console.error('User document does not exist!');
-    }
-  }).catch((error) => {
-    console.error('Error getting user document:', error);
-  });
-}
-
-// 사용 예시: joinPublicTodo('userId', 'publicTodoId');
-// 사용 예시: checkPublicTodo('userId', 'publicTodoId', true);
-
+    };
 
   // Join 버튼을 클릭할 때 실행되는 함수
   // const joinPublicTodo = (id) => {
@@ -461,8 +420,7 @@ const checkPublicTodo = (userId, publicTodoId, checked) => {
           {!result.joined && (
             <button 
               onClick={() => 
-                joinPublicTodo(result.id)
-
+                joinPublicTodo
               }
             >
               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Join

@@ -3,10 +3,6 @@
   상태 관리를 위해 `useState` 훅을 사용하여 할 일 목록과 입력값을 관리합니다.
   할 일 목록의 추가, 삭제, 완료 상태 변경 등의 기능을 구현하였습니다.
 */
-import firebase from "firebase/app";
-import "firebase/firestore"
-firebase.initializeApp(firebaseConfig);
-
 import React, { useState, useEffect } from "react";
 import { signOut, useSession } from "next-auth/react";
 import TodoItem from "@/components/TodoItem";
@@ -256,7 +252,7 @@ const toggleTodo = async (id, isPublic) => {
     };
   
     // 사용자가 'publicTodo'에 join하는 함수
-function joinPublicTodo(publicTodoId) {
+const joinPublicTodo = (userId, publicTodoId) => {
   // 'myPublicTodo' 컬렉션에 사용자 문서 가져오기
   const userDocRef = db.collection('myPublicTodo').doc(userId);
   userDocRef.get().then((doc) => {
@@ -291,7 +287,7 @@ function joinPublicTodo(publicTodoId) {
 }
 
 // 사용자가 'publicTodo'의 할 일을 체크하는 함수
-function checkPublicTodo(userId, publicTodoId, checked) {
+const checkPublicTodo = (userId, publicTodoId, checked) => {
   const userDocRef = db.collection('myPublicTodo').doc(userId);
   userDocRef.get().then((doc) => {
     if (doc.exists) {

@@ -3,6 +3,10 @@
   상태 관리를 위해 `useState` 훅을 사용하여 할 일 목록과 입력값을 관리합니다.
   할 일 목록의 추가, 삭제, 완료 상태 변경 등의 기능을 구현하였습니다.
 */
+import firebase from "firebase/app";
+import "firebase/firestore"
+firebase.initializeApp(firebaseConfig);
+
 import React, { useState, useEffect } from "react";
 import { signOut, useSession } from "next-auth/react";
 import TodoItem from "@/components/TodoItem";
@@ -27,6 +31,7 @@ import tailwindConfig from "../../tailwind.config";
 // DB의 todos 컬렉션 참조를 만듭니다. 컬렉션 사용시 잘못된 컬렉션 이름 사용을 방지합니다.
 const todoCollection = collection(db, "todos");
 const publicTodoCollection = collection (db, "todos");
+const myPublicTodoCollection = collection (db, "todos");
 
 const handleLogout = async () => {
   await signOut();
@@ -37,6 +42,7 @@ const TodoList = () => {
   // 상태를 관리하는 useState 훅을 사용하여 할 일 목록과 입력값을 초기화합니다.
   const [todos, setTodos] = useState([]);
   const [publicTodos, setPublicTodos] = useState([]);
+  const [myPublicTodos, setMyPublicTodos] = useState([]); // myPublicTodo 카테고리 추가
   const [input, setInput] = useState("");
   const [publicInput, setPublicInput] = useState(""); // public 카테고리 인풋 추가. 
   const [selectedDate, setSelectedDate] = useState(null);
@@ -218,24 +224,6 @@ const toggleTodo = async (id, isPublic) => {
   
 }
 };
-
-  
-  // toggleTodo 함수는 체크박스를 눌러 할 일의 완료 상태를 변경하는 함수입니다.
-  // const toggleTodo = (id) => {
-  //   // 할 일 목록에서 해당 id를 가진 할 일의 완료 상태를 반전시킵니다.
-  //   const newTodos = todos.map((todo) => {
-  //     if(todo.id === id) {
-  //       const todoDoc = doc(todoCollection, id);
-  //       updateDoc(todoDoc, { completed: !todo.completed });
-  //       return { ...todo, completed: !todo.completed };
-  //     } else {
-  //       return todo;
-  //     }
-  //   });
-
-  //   setTodos(newTodos);
-  // };
-
   
   // deleteTodo 함수는 할 일을 목록에서 삭제하는 함수입니다.
     // 해당 id를 가진 할 일을 제외한 나머지 목록을 새로운 상태로 저장합니다.
@@ -266,27 +254,92 @@ const toggleTodo = async (id, isPublic) => {
         }
       }
     };
-    
+  
+    // 사용자가 'publicTodo'에 join하는 함수
+function joinPublicTodo(publicTodoId) {
+  // 'myPublicTodo' 컬렉션에 사용자 문서 가져오기
+  const userDocRef = db.collection('myPublicTodo').doc(userId);
+  userDocRef.get().then((doc) => {
+    if (doc.exists) {
+      // 이미 해당 사용자의 문서가 존재하면 할 일 ID를 추가
+      const todoIds = doc.data().todoIds || [];
+      if (!todoIds.includes(publicTodoId)) {
+        todoIds.push(publicTodoId);
+      }
+      // 할 일 ID 업데이트
+      userDocRef.update({ todoIds: todoIds })
+        .then(() => {
+          console.log('Join completed successfully!');
+        })
+        .catch((error) => {
+          console.error('Error updating user document:', error);
+        });
+    } else {
+      // 해당 사용자의 문서가 존재하지 않으면 새로 생성하고 할 일 ID를 추가
+      const data = { todoIds: [publicTodoId] };
+      userDocRef.set(data)
+        .then(() => {
+          console.log('Join completed successfully!');
+        })
+        .catch((error) => {
+          console.error('Error creating user document:', error);
+        });
+    }
+  }).catch((error) => {
+    console.error('Error getting user document:', error);
+  });
+}
+
+// 사용자가 'publicTodo'의 할 일을 체크하는 함수
+function checkPublicTodo(userId, publicTodoId, checked) {
+  const userDocRef = db.collection('myPublicTodo').doc(userId);
+  userDocRef.get().then((doc) => {
+    if (doc.exists) {
+      const todoIds = doc.data().todoIds || [];
+      if (todoIds.includes(publicTodoId)) {
+        // 해당 할 일이 사용자의 목록에 있으면 수행 여부를 업데이트
+        const todoData = { checked: checked };
+        db.collection('publicTodo').doc(publicTodoId).update(todoData)
+          .then(() => {
+            console.log('PublicTodo checked successfully!');
+          })
+          .catch((error) => {
+            console.error('Error updating publicTodo:', error);
+          });
+      } else {
+        console.error('User is not joined to the publicTodo!');
+      }
+    } else {
+      console.error('User document does not exist!');
+    }
+  }).catch((error) => {
+    console.error('Error getting user document:', error);
+  });
+}
+
+// 사용 예시: joinPublicTodo('userId', 'publicTodoId');
+// 사용 예시: checkPublicTodo('userId', 'publicTodoId', true);
+
 
   // Join 버튼을 클릭할 때 실행되는 함수
-  const joinPublicTodo = (id) => {
-    // Join 가능한 publicTodo의 id를 설정합니다.
-    setJoinableTodoId(id);
-  };
+  // const joinPublicTodo = (id) => {
+  //   // Join 가능한 publicTodo의 id를 설정합니다.
+  //   setJoinableTodoId(id);
+  // };
 
-  // Join 가능한 publicTodo의 id를 이용하여 해당 publicTodo를 가져오는 함수
-  const getJoinableTodo = (id) => {
-    return publicTodos.find((publicTodo) => publicTodo.id === id);
-  };
+  // // Join 가능한 publicTodo의 id를 이용하여 해당 publicTodo를 가져오는 함수
+  // const getJoinableTodo = (id) => {
+  //   return publicTodos.find((publicTodo) => publicTodo.id === id);
+  // };
 
-  // Join 가능한 publicTodo를 가져오고 해당 publicTodo의 구성원 수행 여부를 확인할 수 있게 합니다.
-  const joinableTodo = joinableTodoId ? getJoinableTodo(joinableTodoId) : null;
+  // // Join 가능한 publicTodo를 가져오고 해당 publicTodo의 구성원 수행 여부를 확인할 수 있게 합니다.
+  // const joinableTodo = joinableTodoId ? getJoinableTodo(joinableTodoId) : null;
 
-  // Join 가능한 publicTodo에 대한 구성원 수행 여부 체크 기능
-  const checkMemberCompletion = (memberId) => {
-    // memberId에 해당하는 사용자의 수행 여부를 확인하는 로직을 추가합니다.
-    // 구성원의 수행 여부를 표시하거나 처리할 수 있는 컴포넌트를 렌더링합니다.
-  };
+  // // Join 가능한 publicTodo에 대한 구성원 수행 여부 체크 기능
+  // const checkMemberCompletion = (memberId) => {
+  //   memberId에 해당하는 사용자의 수행 여부를 확인하는 로직을 추가합니다.
+  //   구성원의 수행 여부를 표시하거나 처리할 수 있는 컴포넌트를 렌더링합니다.
+  // };
   
   return (
     <div className={styles.container}>
@@ -463,14 +516,8 @@ const toggleTodo = async (id, isPublic) => {
               ))}
         </ul>
         {/* Join 가능한 Public Todo 출력 */}
-        {joinableTodo && (
+        {/* {joinableTodo && (
           <div class="grid">
-            {/* <h3>Joinable Todo: {joinableTodo.text}</h3> */}
-            {/* <input
-              type="checkbox"
-              checked={joinableTodo.completed}
-              onChange={() => toggleTodo(joinableTodo.id)}
-            /> */}
             <ul>
               {publicTodos
                   .filter((joinableTodo) => !joinableTodo.completed)
@@ -483,13 +530,8 @@ const toggleTodo = async (id, isPublic) => {
                     />
                   ))}
             </ul>
-            {/* <button onClick={() => deleteTodo(joinableTodo.id)}>
-              Delete
-            </button> */}
-            {/* Join 가능한 Public Todo의 구성원 수행 여부 확인 */}
-            {/* ... */}
           </div>
-        )}
+        )} */}
       </div>
       <div className="w-1/2 pl-4">
         <h2 className="text-lg font-medium mb-2">Completed Todo</h2>

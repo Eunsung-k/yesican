@@ -192,8 +192,6 @@ const toggleTodo = async (id, isPublic) => {
   const collectionRef = isPublic ? publicTodoCollection : todoCollection;
   const todoDocRef = doc(collectionRef, id);
   const todoSnapshot = await getDoc(todoDocRef);
-
- 
   
   if (todoSnapshot.exists()) {
     
@@ -252,7 +250,7 @@ const toggleTodo = async (id, isPublic) => {
     
         // Check if the user is the administrator before allowing the deletion
         if (todoData.isPublic) {
-          if (todoData.administratorId === data?.user?.id){
+          {
           await deleteDoc(todoDoc);
           setPublicTodos(
             publicTodos.filter((publicTodo) => publicTodo.id !== id)
@@ -460,7 +458,7 @@ const toggleTodo = async (id, isPublic) => {
                   key={publicTodo.id}
                   todo={publicTodo}
                   onToggle={() => toggleTodo(publicTodo.id)}
-                  // onDelete={() => deleteTodo(publicTodo.id)}
+                  onDelete={() => deleteTodo(publicTodo.id)}
                 />
               ))}
         </ul>

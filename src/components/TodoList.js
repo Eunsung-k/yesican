@@ -26,8 +26,8 @@ import tailwindConfig from "../../tailwind.config";
 
 // DB의 todos 컬렉션 참조를 만듭니다. 컬렉션 사용시 잘못된 컬렉션 이름 사용을 방지합니다.
 const todoCollection = collection(db, "todos");
-const publicTodoCollection = collection (db, "todos");
-const myPublicTodoCollection = collection (db, "todos");
+const publicTodoCollection = collection (db, "publicTodos");
+const myPublicTodoCollection = collection (db, "myPublicTodos");
 
 const handleLogout = async () => {
   await signOut();

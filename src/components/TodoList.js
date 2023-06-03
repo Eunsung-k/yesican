@@ -158,7 +158,6 @@ const TodoList = () => {
     setInput("");
     setSelectedDate(null);
     setSelectedTime(null);
-    totalTasks++;
   };
 
   const addPublicTodo = async() => {
@@ -184,12 +183,7 @@ const toggleTodo = async (id, isPublic) => {
   const todoDocRef = doc(collectionRef, id);
   const todoSnapshot = await getDoc(todoDocRef);
 
- 
-  
   if (todoSnapshot.exists()) {
-    
-  
-
     const todoData = todoSnapshot.data();
     const updatedCompleted = !todoData.completed;
     
@@ -198,10 +192,8 @@ const toggleTodo = async (id, isPublic) => {
     const updatedTodos = isPublic ? [...publicTodos] : [...todos];
     const todoIndex = updatedTodos.findIndex((todo) => todo.id === id);
 
-    
     if (todoIndex !== -1) {
       updatedTodos[todoIndex] = { ...updatedTodos[todoIndex], completed: updatedCompleted };
-      
       if (isPublic) {
         setPublicTodos(updatedTodos);
       } else {
@@ -252,7 +244,7 @@ const toggleTodo = async (id, isPublic) => {
         }
         
         // joinedUsers 필드를 업데이트합니다.
-        const joinedUser = { userId: currentUser.id, completed: false };
+        const joinedUser = { completed: false };
         const updatedJoinedUsers = {
           ...publicTodoData.joinedUsers,
           [currentUser.id]: joinedUser
@@ -262,7 +254,6 @@ const toggleTodo = async (id, isPublic) => {
       }
     };
     
-  
   return (
     <div className={styles.container}>
       <div className="w-1/2 pr-4">
@@ -273,6 +264,99 @@ const toggleTodo = async (id, isPublic) => {
       <h1 className="text-xl mb-4 font-bold underline underline-offset-4 decoration-wavy text-pink-500">
         {data?.user?.name}'s Todo List
       </h1>
+      <div className={styles.inputContainer}></div>
+      Personal Todo
+      <input
+        type="text"
+        className="shadow-lg w-full p-1 mb-4 border border-gray-300 rounded"
+        value={input}
+        onChange={(e) => setInput(e.target.value)}
+      />
+      <input
+        type="date"
+        className={styles.itemInput}
+        value={selectedDate}
+        onChange={(e) => setSelectedDate(e.target.value)} 
+        />
+      <input
+        type="time"
+        className={styles.itemInput}
+        value={selectedTime}
+        onChange={(e) => setSelectedTime(e.target.value)}
+      />
+      <div class="grid">
+        <button
+          className="w-40 justify-self-end p-1 mb-4 bg-pink-500 text-white border border-pink-500 rounded hover:bg-white hover:text-pink-500"
+          onClick={() => {
+            addTodo();
+          }}
+        >
+          Add Todo
+        </button>
+        <div className="w-1/2 pr-4">
+        <h2 className="text-lg font-medium mb-2">Personal Todo List</h2>
+         {/* personal Todo 달성도를 원 그래프로 시각화 */}
+         <div className="flex items-center justify-center">
+          <svg width="120" height="120" viewBox="0 0 120 120">
+            <circle
+              cx="60"
+              cy="60"
+              r="50"
+              fill="none"
+              stroke="#e6e6e6"
+              strokeWidth="10"
+            />
+            <circle
+              cx="60"
+              cy="60"
+              r="50"
+              fill="none"
+              stroke="#ff5d5d"
+              strokeWidth="10"
+              strokeDasharray={`${personalCompletionPercentage()}, 100`}
+              transform="rotate(-90) translate(-120)"
+            />
+            <text
+              x="50%"
+              y="50%"
+              dominantBaseline="middle"
+              textAnchor="middle"
+              fontSize="18"
+            >
+              {/* 0-100사이 퍼센트 숫자를 표시 */}
+               {personalCompletionPercentageindex()}%
+            </text>
+          </svg>
+        </div>
+        <ul>
+          {todos
+              .filter((todo) => !todo.completed)
+              .map((todo) => (
+                <TodoItem
+                  key={todo.id}
+                  todo={todo}
+                  onToggle={() => toggleTodo(todo.id)}
+                  onDelete={() => deleteTodo(todo.id)}
+                />
+              ))}
+        </ul>
+      </div>
+      <div className="w-1/2 pl-4">
+        <h2 className="text-lg font-medium mb-2">Completed Todo</h2>
+        <ul>
+          {todos
+              .filter((todo) => todo.completed)
+              .map((todo) => (
+                <TodoItem
+                  key={todo.id}
+                  todo={todo}
+                  onToggle={() => toggleTodo(todo.id)}
+                  onDelete={() => deleteTodo(todo.id)}
+                />
+              ))} 
+        </ul>
+      </div>  
+    </div>
 {/* public section rendering */}
     <div className={styles.inputContainer}></div>
       Public Todo
@@ -329,16 +413,16 @@ const toggleTodo = async (id, isPublic) => {
         <div className="w-1/2 pr-4">
         <h2 className="text-lg font-medium mb-2">Public Todo List</h2>
         <ul>
-          {publicTodos
-              .filter((publicTodo) => publicTodo.isPublic)
-              .filter((publicTodo) => publicTodo.completed)
-              .map((publicTodo) => (
-                <TodoItem
-                  key={publicTodo.id}
-                  todo={publicTodo}
-                  onToggle={() => toggleTodo(publicTodo.id)}
-                  // onDelete={() => deleteTodo(publicTodo.id)}
-                />
+          {publicTodos.map((publicTodo) => (
+                <li key={publicTodo.id}>
+                  <input
+                    type="checkbox"
+                    checked={publicTodo.joinedUsers?.[sessionStorage.userId]?.completed || false}
+                    onChange={() => toggleTodo(publicTodo.id)}
+                    />
+                    <span>{publicTodo.text}</span> 
+                    <button onClick={()=>deleteTodo(publicTodo.id)}>Delete</button>
+                </li>
               ))}
         </ul>
       </div>

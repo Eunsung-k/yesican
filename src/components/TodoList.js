@@ -4,6 +4,7 @@ import TodoItem from "@/components/TodoItem";
 import styles from "@/styles/TodoList.module.css";
 
 import { db } from "@/firebase";
+
 import {
   getFirestore,
   collection,
@@ -178,55 +179,58 @@ const TodoList = () => {
     setSelectedTime(null);
   };
 
-const toggleTodo = async (id, isPublic) => {
-  const collectionRef = isPublic ? publicTodoCollection : todoCollection;
-  const todoDocRef = doc(collectionRef, id);
-  const todoSnapshot = await getDoc(todoDocRef);
-
-  if (todoSnapshot.exists()) {
-    const todoData = todoSnapshot.data();
-    const updatedCompleted = !todoData.completed;
-    
-    await updateDoc(todoDocRef, { completed: updatedCompleted });
-    
-    const updatedTodos = isPublic ? [...publicTodos] : [...todos];
-    const todoIndex = updatedTodos.findIndex((todo) => todo.id === id);
-
-    if (todoIndex !== -1) {
-      updatedTodos[todoIndex] = { ...updatedTodos[todoIndex], completed: updatedCompleted };
+  const toggleTodo = async (id, isPublic) => {
+    const collectionRef = isPublic ? publicTodoCollection : todoCollection;
+    const todoDocRef = doc(collectionRef, id);
+    const todoSnapshot = await getDoc(todoDocRef);
+  
+    if (todoSnapshot.exists()) {
+      const todoData = todoSnapshot.data();
+      const updatedCompleted = !todoData.completed;
+  
+      await updateDoc(todoDocRef, { completed: updatedCompleted });
+  
       if (isPublic) {
-        setPublicTodos(updatedTodos);
+        setPublicTodos(prevPublicTodos => {
+          return prevPublicTodos.map(todo =>
+            todo.id === id ? { ...todo, completed: updatedCompleted } : todo
+          );
+        });
       } else {
-        setTodos(updatedTodos);
+        setTodos(prevTodos => {
+          return prevTodos.map(todo =>
+            todo.id === id ? { ...todo, completed: updatedCompleted } : todo
+          );
+        });
       }
     }
+  };
   
-}
-};
 
-    const deleteTodo = async (id) => {
-      const todoDoc = doc(todoCollection, id);
-      const todoSnapshot = await getDoc(todoDoc);
-    
-      if (todoSnapshot.exists()) {
-        const todoData = todoSnapshot.data();
-    
-        if (todoData.isPublic) {
-          if (todoData.administratorId === data?.user?.id){
-          await deleteDoc(todoDoc);
-          setPublicTodos(
-            publicTodos.filter((publicTodo) => publicTodo.id !== id)
-          );
-          }
-        } else {
-          deleteDoc(todoDoc);
-          setTodos(todos.filter((todo) => {
-        return todo.id !== id;
-      })
-          );
-        }
+  const deleteTodo = async (id) => {
+    const todoDoc = doc(todoCollection, id);
+    const publicTodoDoc = doc(publicTodoCollection, id);
+  
+    try {
+      // Delete from 'publicTodoCollection' if exists
+      const publicTodoSnapshot = await getDoc(publicTodoDoc);
+      if (publicTodoSnapshot.exists()) {
+        await deleteDoc(publicTodoDoc);
+        setPublicTodos((prevPublicTodos) =>
+          prevPublicTodos.filter((publicTodo) => publicTodo.id !== id)
+        );
       }
-    };
+  
+      // Remove from 'todos'
+      setTodos((prevTodos) => prevTodos.filter((todo) => todo.id !== id));
+    } catch (error) {
+      console.error("Error deleting todo:", error);
+    }
+  };
+  
+  
+  
+  
 
     const joinPublicTodo = async (publicTodoId) => {
       const publicTodoDocRef = doc(publicTodoCollection, publicTodoId);
@@ -234,25 +238,64 @@ const toggleTodo = async (id, isPublic) => {
     
       if (publicTodoSnapshot.exists()) {
         const publicTodoData = publicTodoSnapshot.data();
-        
-        // 현재 로그인한 사용자의 정보를 가져옵니다.
+    
+        // Get the current user's information
         const currentUser = data?.user;
-        
-        // 이미 참여한 경우 함수를 종료합니다.
-        if (publicTodoData.joinedUsers && publicTodoData.joinedUsers[currentUser.id]) {
+    
+        // Check if the user has already joined
+        if (
+          currentUser &&
+          publicTodoData.joinedUsers &&
+          publicTodoData.joinedUsers[currentUser.id]
+        ) {
           return;
         }
-        
-        // joinedUsers 필드를 업데이트합니다.
-        const joinedUser = { completed: false };
+    
+        // Update the joinedUsers field
+        const joinedUser = { completed: !publicTodoData.completed };
         const updatedJoinedUsers = {
-          ...publicTodoData.joinedUsers,
-          [currentUser.id]: joinedUser
+          ...(publicTodoData.joinedUsers || {}),
+          [currentUser.id]: joinedUser,
         };
-        
+    
         await updateDoc(publicTodoDocRef, { joinedUsers: updatedJoinedUsers });
       }
     };
+    
+
+    
+
+    const toggleJoinedUser = async (publicTodoId) => {
+      const publicTodoDocRef = doc(publicTodoCollection, publicTodoId);
+      const publicTodoSnapshot = await getDoc(publicTodoDocRef);
+    
+      if (publicTodoSnapshot.exists()) {
+        const publicTodoData = publicTodoSnapshot.data();
+        
+        // Get the current user's information
+        const currentUser = data?.user;
+        
+        // If the user has already joined, remove them from the joinedUsers
+        if (publicTodoData.joinedUsers && publicTodoData.joinedUsers[currentUser.id]) {
+          const updatedJoinedUsers = { ...publicTodoData.joinedUsers };
+          delete updatedJoinedUsers[currentUser.id];
+          
+          await updateDoc(publicTodoDocRef, { joinedUsers: updatedJoinedUsers });
+        } else {
+          // If the user hasn't joined, add them to the joinedUsers
+          const joinedUser = { completed: false };
+          const updatedJoinedUsers = {
+            ...publicTodoData.joinedUsers,
+            [currentUser.id]: joinedUser,
+          };
+          
+          await updateDoc(publicTodoDocRef, { joinedUsers: updatedJoinedUsers });
+        }
+      }
+    };
+    
+
+    
     
   return (
     <div className={styles.container}>
@@ -413,18 +456,21 @@ const toggleTodo = async (id, isPublic) => {
         <div className="w-1/2 pr-4">
         <h2 className="text-lg font-medium mb-2">Public Todo List</h2>
         <ul>
-          {publicTodos.map((publicTodo) => (
-                <li key={publicTodo.id}>
-                  <input
-                    type="checkbox"
-                    checked={publicTodo.joinedUsers?.[sessionStorage.userId]?.completed || false}
-                    onChange={() => toggleTodo(publicTodo.id)}
-                    />
-                    <span>{publicTodo.text}</span> 
-                    <button onClick={()=>deleteTodo(publicTodo.id)}>Delete</button>
-                </li>
-              ))}
-        </ul>
+        {publicTodos.map(todo => (
+  <div key={todo.id}>
+    <input
+      type="checkbox"
+      checked={todo.completed}
+      onChange={() => toggleTodo(todo.id, true)}
+    />
+    <span>{todo.text}</span>
+      <button onClick={() => deleteTodo(todo.id)}>Delete</button>
+  </div>
+))}
+
+
+</ul>
+
       </div>
       <div className="w-1/2 pl-4">
         <h2 className="text-lg font-medium mb-2">Completed Todo</h2>

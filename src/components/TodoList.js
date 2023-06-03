@@ -44,13 +44,11 @@ const TodoList = () => {
     const completedCount = todos.filter((todo) => todo.completed).length;
     const totalCount = todos.length;
     const percentage = totalCount !== 0 ? Math.round((completedCount / totalCount) * 100) : 0;
-    const circumference = 2 * Math.PI * 50; // 원의 둘레
-  
-    const strokeLength = (circumference * percentage) / 100;
-    const gapLength = circumference - strokeLength;
-  
-    return `${strokeLength}, ${gapLength}`;
+    const barWidth = (500 * percentage) / 100; // 가로 막대의 너비
+    
+    return barWidth;
   };
+  
 
   const personalCompletionPercentageindex = () => {
     const completedCount = todos.filter((todo) => todo.completed).length;
@@ -336,41 +334,48 @@ const TodoList = () => {
         >
           Add Todo
         </button>
-        <div className="w-1/2 pr-4">
+        <div className="w-3/3 ">
         <h2 className="text-lg font-medium mb-2">Personal Todo List</h2>
-         {/* personal Todo 달성도를 원 그래프로 시각화 */}
-         <div className="flex items-center justify-center">
-          <svg width="120" height="120" viewBox="0 0 120 120">
-            <circle
-              cx="60"
-              cy="60"
-              r="50"
-              fill="none"
-              stroke="#e6e6e6"
-              strokeWidth="10"
-            />
-            <circle
-              cx="60"
-              cy="60"
-              r="50"
-              fill="none"
-              stroke="#ff5d5d"
-              strokeWidth="10"
-              strokeDasharray={`${personalCompletionPercentage()}, 100`}
-              transform="rotate(-90) translate(-120)"
-            />
-            <text
-              x="50%"
-              y="50%"
-              dominantBaseline="middle"
-              textAnchor="middle"
-              fontSize="18"
-            >
-              {/* 0-100사이 퍼센트 숫자를 표시 */}
-               {personalCompletionPercentageindex()}%
-            </text>
-          </svg>
-        </div>
+         {/* personal Todo 달성도를 가로 막대 그래프로 시각화 */}
+          <div className="flex items-center justify-center pr-10">
+            <svg width="500" height="30" viewBox="0 0 700 30">
+              <rect
+                x="20"
+                y="0"
+                width="500"
+                height="20"
+                fill="#e6e6e6"
+                rx="10"
+              />
+              <rect
+                x="20"
+                y="0"
+                width={personalCompletionPercentage()}
+                height="20"
+                fill="#ff5d5d"
+                rx="10"
+              />
+              <text
+                x="40%"
+                y="40%"
+                dominantBaseline="middle"
+                textAnchor="middle"
+                fontSize="18"
+              >
+                {/* 0-100사이 퍼센트 숫자를 표시 */}
+                {personalCompletionPercentageindex()}%
+              </text>
+              <text
+                x="88%"
+                y="30%"
+                dominantBaseline="middle"
+                textAnchor="middle"
+                fontSize="18"
+              >
+                personal Todo 달성도
+              </text>
+            </svg>
+          </div>
         <ul>
           {todos
               .filter((todo) => !todo.completed)
@@ -384,7 +389,7 @@ const TodoList = () => {
               ))}
         </ul>
       </div>
-      <div className="w-1/2 pl-4">
+      <div className="w-3/3 pl-4">
         <h2 className="text-lg font-medium mb-2">Completed Todo</h2>
         <ul>
           {todos
@@ -453,7 +458,7 @@ const TodoList = () => {
         >
           Add Todo
         </button>
-        <div className="w-1/2 pr-4">
+        <div className="w-3/3">
         <h2 className="text-lg font-medium mb-2">Public Todo List</h2>
         <ul>
         {publicTodos.map(todo => (
@@ -467,12 +472,15 @@ const TodoList = () => {
       <button onClick={() => deleteTodo(todo.id)}>Delete</button>
   </div>
 ))}
+<<<<<<< HEAD
+=======
 
 
+>>>>>>> e1ac8ce09f6ad82bcb0e9f44211cf3d5d2cde3c8
 </ul>
 
       </div>
-      <div className="w-1/2 pl-4">
+      <div className="w-3/3 pl-4">
         <h2 className="text-lg font-medium mb-2">Completed Todo</h2>
         <ul>
           {publicTodos

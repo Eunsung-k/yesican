@@ -242,10 +242,6 @@ const TodoList = () => {
       console.error("Error deleting todo:", error);
     }
   };
-  
-  
-  
-  
 
     const joinPublicTodo = async (publicTodoId) => {
       const publicTodoDocRef = doc(publicTodoCollection, publicTodoId);
@@ -267,7 +263,7 @@ const TodoList = () => {
         }
     
         // Update the joinedUsers field
-        const joinedUser = { completed: !publicTodoData.completed };
+        const joinedUser = { completed: false };
         const updatedJoinedUsers = {
           ...(publicTodoData.joinedUsers || {}),
           [currentUser.id]: joinedUser,
@@ -277,38 +273,36 @@ const TodoList = () => {
       }
     };
     
-
-    const toggleJoinedUser = async (publicTodoId) => {
+    const toggleJoinedTodo = async (publicTodoId) => {
       const publicTodoDocRef = doc(publicTodoCollection, publicTodoId);
       const publicTodoSnapshot = await getDoc(publicTodoDocRef);
     
       if (publicTodoSnapshot.exists()) {
         const publicTodoData = publicTodoSnapshot.data();
-        
+    
         // Get the current user's information
         const currentUser = data?.user;
-        
-        // If the user has already joined, remove them from the joinedUsers
-        if (publicTodoData.joinedUsers && publicTodoData.joinedUsers[currentUser.id]) {
-          const updatedJoinedUsers = { ...publicTodoData.joinedUsers };
-          delete updatedJoinedUsers[currentUser.id];
-          
-          await updateDoc(publicTodoDocRef, { joinedUsers: updatedJoinedUsers });
-        } else {
-          // If the user hasn't joined, add them to the joinedUsers
-          const joinedUser = { completed: false };
+    
+        // Check if the user has already joined
+        if (
+          currentUser &&
+          publicTodoData.joinedUsers &&
+          publicTodoData.joinedUsers[currentUser.id]
+        ) {
+          // User has already joined, so toggle the completed value
+          const joinedUser = publicTodoData.joinedUsers[currentUser.id];
           const updatedJoinedUsers = {
             ...publicTodoData.joinedUsers,
-            [currentUser.id]: joinedUser,
+            [currentUser.id]: {
+              ...joinedUser,
+              completed: !joinedUser.completed,
+            },
           };
-          
+    
           await updateDoc(publicTodoDocRef, { joinedUsers: updatedJoinedUsers });
         }
       }
-    };
-    
-
-    
+    };    
     
   return (
     <div className={styles.container}>
@@ -483,7 +477,7 @@ const TodoList = () => {
               <TodoItem
                   key={todo.id}
                   todo={todo}
-                  onToggle={() => toggleTodo(todo.id)}
+                  onToggle={() => toggleJoinedTodo(todo.id)}
                   onDelete={() => deleteTodo(todo.id)}
                 />
 ))}

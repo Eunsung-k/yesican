@@ -186,7 +186,7 @@ const TodoList = () => {
     const collectionRef = isPublic ? publicTodoCollection : todoCollection;
     const todoDocRef = doc(collectionRef, id);
     const todoSnapshot = await getDoc(todoDocRef);
-  
+
     if (todoSnapshot.exists()) {
       const todoData = todoSnapshot.data();
       const updatedCompleted = !todoData.completed;
@@ -213,7 +213,19 @@ const TodoList = () => {
   const deleteTodo = async (id) => {
     const todoDoc = doc(todoCollection, id);
     const publicTodoDoc = doc(publicTodoCollection, id);
-  
+    
+    const todoSnapshot = await getDoc(publicTodoDoc);
+    if(todoSnapshot.exists()) {
+      const todoData = todoSnapshot.data();
+
+      if(todoData.isPublic && todoData.administratorId!=data?.user.id) {
+        const current_id = data?.user.id;
+        delete todoData.joinedUsers[current_id];
+        await updateDoc(publicTodoDoc, { joinedUsers:todoData.joinedUsers});
+        return;
+      }
+    }
+    
     try {
       // Delete from 'publicTodoCollection' if exists
       const publicTodoSnapshot = await getDoc(publicTodoDoc);

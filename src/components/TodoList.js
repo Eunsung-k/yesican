@@ -175,7 +175,12 @@ const TodoList = () => {
     setPublicInput("");
     setSelectedDate(null);
     setSelectedTime(null);
+    console.log('here');
+    console.log(docRef.id);
+    console.log('end');
+    return docRef.id;
   };
+
 
   const toggleTodo = async (id, isPublic) => {
     const collectionRef = isPublic ? publicTodoCollection : todoCollection;
@@ -420,8 +425,8 @@ const TodoList = () => {
           <span>{result.text}</span>
           {!result.joined && (
             <button 
-              onClick={() => 
-                joinPublicTodo(result.id)}
+              onClick={() => {
+                joinPublicTodo(result.id);}}
             >
               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Join
             </button>
@@ -451,7 +456,8 @@ const TodoList = () => {
         <button
           className="w-40 justify-self-end p-1 mb-4 bg-pink-500 text-white border border-pink-500 rounded hover:bg-white hover:text-pink-500"
           onClick={() => {
-            addPublicTodo();
+            const promise = addPublicTodo();
+            promise.then((doc_id) => joinPublicTodo(doc_id));
           }}
         >
           Add Todo
@@ -460,8 +466,7 @@ const TodoList = () => {
         <h2 className="text-lg font-medium mb-2">Public Todo List</h2>
         <ul>
           {publicTodos
-            .filter((publicTodo) => publicTodo.administratorId==data?.user.id || 
-                                  (publicTodo.joinedUsers && publicTodo.joinedUsers[data?.user.id]))
+            .filter((publicTodo) => publicTodo.joinedUsers && publicTodo.joinedUsers[data?.user.id])
             .map(todo => (
               <TodoItem
                   key={todo.id}
@@ -480,8 +485,7 @@ const TodoList = () => {
           {publicTodos
               .filter((publicTodo) => publicTodo.isPublic)
               .filter((publicTodo) => publicTodo.completed)
-              .filter((publicTodo) => publicTodo.administratorId==data?.user.id || 
-                                     (publicTodo.joinedUsers && publicTodo.joinedUsers[data?.user.id]))
+              .filter((publicTodo) => publicTodo.joinedUsers && publicTodo.joinedUsers[data?.user.id])
               .map((publicTodo) => (
                 <TodoItem
                   key={publicTodo.id}

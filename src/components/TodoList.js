@@ -472,11 +472,7 @@ const TodoList = () => {
       <button onClick={() => deleteTodo(todo.id)}>Delete</button>
   </div>
 ))}
-<<<<<<< HEAD
-=======
 
-
->>>>>>> e1ac8ce09f6ad82bcb0e9f44211cf3d5d2cde3c8
 </ul>
 
       </div>

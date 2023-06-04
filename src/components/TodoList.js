@@ -261,8 +261,6 @@ const TodoList = () => {
     };
     
 
-    
-
     const toggleJoinedUser = async (publicTodoId) => {
       const publicTodoDocRef = doc(publicTodoCollection, publicTodoId);
       const publicTodoSnapshot = await getDoc(publicTodoDocRef);
@@ -461,16 +459,16 @@ const TodoList = () => {
         <div className="w-3/3">
         <h2 className="text-lg font-medium mb-2">Public Todo List</h2>
         <ul>
-        {publicTodos.map(todo => (
-  <div key={todo.id}>
-    <input
-      type="checkbox"
-      checked={todo.completed}
-      onChange={() => toggleTodo(todo.id, true)}
-    />
-    <span>{todo.text}</span>
-      <button onClick={() => deleteTodo(todo.id)}>Delete</button>
-  </div>
+          {publicTodos
+            .filter((publicTodo) => publicTodo.administratorId==data?.user.id || 
+                                  (publicTodo.joinedUsers && publicTodo.joinedUsers[data?.user.id]))
+            .map(todo => (
+              <TodoItem
+                  key={todo.id}
+                  todo={todo}
+                  onToggle={() => toggleTodo(todo.id)}
+                  onDelete={() => deleteTodo(todo.id)}
+                />
 ))}
 
 </ul>
@@ -482,6 +480,8 @@ const TodoList = () => {
           {publicTodos
               .filter((publicTodo) => publicTodo.isPublic)
               .filter((publicTodo) => publicTodo.completed)
+              .filter((publicTodo) => publicTodo.administratorId==data?.user.id || 
+                                     (publicTodo.joinedUsers && publicTodo.joinedUsers[data?.user.id]))
               .map((publicTodo) => (
                 <TodoItem
                   key={publicTodo.id}

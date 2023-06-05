@@ -183,31 +183,34 @@ const TodoList = () => {
 
 
   const toggleTodo = async (id, isPublic) => {
-    const collectionRef = isPublic ? publicTodoCollection : todoCollection;
-    const todoDocRef = doc(collectionRef, id);
-    const todoSnapshot = await getDoc(todoDocRef);
+  const collectionRef = isPublic ? publicTodoCollection : todoCollection;
+  const todoDocRef = doc(collectionRef, id);
+  const todoSnapshot = await getDoc(todoDocRef);
 
-    if (todoSnapshot.exists()) {
-      const todoData = todoSnapshot.data();
-      const updatedCompleted = !todoData.completed;
-  
-      await updateDoc(todoDocRef, { completed: updatedCompleted });
-  
-      if (isPublic) {
-        setPublicTodos(prevPublicTodos => {
-          return prevPublicTodos.map(todo =>
-            todo.id === id ? { ...todo, completed: updatedCompleted } : todo
-          );
-        });
-      } else {
-        setTodos(prevTodos => {
-          return prevTodos.map(todo =>
-            todo.id === id ? { ...todo, completed: updatedCompleted } : todo
-          );
-        });
-      }
+  if (todoSnapshot.exists()) {
+    const todoData = todoSnapshot.data();
+    const updatedCompleted = !todoData.completed;
+
+    await updateDoc(todoDocRef, { completed: updatedCompleted });
+
+    if (isPublic) {
+      setPublicTodos(prevPublicTodos => {
+        return prevPublicTodos.map(todo =>
+          todo.id === id ? { ...todo, completed: updatedCompleted } : todo
+        );
+      });
+    } else {
+      setTodos(prevTodos => {
+        return prevTodos.map(todo =>
+          todo.id === id ? { ...todo, completed: updatedCompleted } : todo
+        );
+      });
     }
-  };
+  }
+};
+
+  
+  
   
 
   const deleteTodo = async (id) => {
@@ -321,6 +324,7 @@ const TodoList = () => {
         className="shadow-lg w-full p-1 mb-4 border border-gray-300 rounded"
         value={input}
         onChange={(e) => setInput(e.target.value)}
+        placeholder="personal todo 입력" // 검색창에 연한 회색 글씨 띄우기
       />
       <input
         type="date"
@@ -422,6 +426,7 @@ const TodoList = () => {
        className="shadow-lg w-full p-1 mb-4 border border-gray-300 rounded"
        value={searchInput}
        onChange={(e) => setSearchInput(e.target.value)}
+       placeholder="personal todo 검색" // 검색창에 연한 회색 글씨 띄우기
     />
 
 {/* 검색 결과를 출력합니다. */}
@@ -445,6 +450,7 @@ const TodoList = () => {
         className="shadow-lg w-full p-1 mb-4 border border-gray-300 rounded"
         value={publicInput}
         onChange={(e) => setPublicInput(e.target.value)}
+        placeholder="public todo 입력" // 검색창에 연한 회색 글씨 띄우기
       />
       <input
         type="date"

@@ -508,7 +508,7 @@ const TodoList = () => {
             const displayText = `${completedCount}/${totalCount}`;
             return (
               <li key={publicTodo.id} className="flex items-center mb-2">
-                <span className="w-1/2">{publicTodo.text} : {displayText}(완료/전체)</span>
+                <span className="w-1/2">{publicTodo.text} : {displayText} (완료/전체)</span>
 
                 <div className="w-1/2 flex items-center">
                   <div className="relative w-full h-4 bg-gray-300 rounded">

@@ -44,7 +44,7 @@ const TodoList = () => {
     const completedCount = todos.filter((todo) => todo.completed).length;
     const totalCount = todos.length;
     const percentage = totalCount !== 0 ? Math.round((completedCount / totalCount) * 100) : 0;
-    const barWidth = (500 * percentage) / 100; // 가로 막대의 너비
+    const barWidth = (440 * percentage) / 100; // 가로 막대의 너비
     
     return barWidth;
   };
@@ -63,7 +63,29 @@ const TodoList = () => {
     return scaledValue;
   };
 
-  
+ // 1. Public Todo 달성도 계산 함수
+ const calculatePublicTodoCompletion = (publicTodo) => {
+  const joinedUsers = publicTodo.joinedUsers;
+  if (!joinedUsers) {
+    return {
+      completedCount: 0,
+      totalCount: 0,
+    };
+  }
+  const joinedUserIds = Object.keys(joinedUsers);
+  const completedCount = joinedUserIds.reduce((count, userId) => {
+    if (joinedUsers[userId].completed) {
+      return count + 1;
+    }
+    return count;
+  }, 0);
+  const totalCount = joinedUserIds.length;
+  return {
+    completedCount,
+    totalCount,
+  };
+};
+
   //검색
   const [searchInput, setSearchInput] = useState("");
   const [searchResults, setSearchResults] = useState([]);
@@ -349,46 +371,47 @@ const TodoList = () => {
         </button>
         <div className="w-3/3 ">
         <h2 className="text-lg font-medium mb-2">Personal Todo List</h2>
-         {/* personal Todo 달성도를 가로 막대 그래프로 시각화 */}
-          <div className="flex items-center justify-center pr-10">
-            <svg width="500" height="30" viewBox="0 0 700 30">
-              <rect
-                x="20"
-                y="0"
-                width="500"
-                height="20"
-                fill="#e6e6e6"
-                rx="10"
-              />
-              <rect
-                x="20"
-                y="0"
-                width={personalCompletionPercentage()}
-                height="20"
-                fill="#ff5d5d"
-                rx="10"
-              />
-              <text
-                x="40%"
-                y="40%"
-                dominantBaseline="middle"
-                textAnchor="middle"
-                fontSize="18"
-              >
-                {/* 0-100사이 퍼센트 숫자를 표시 */}
-                {personalCompletionPercentageindex()}%
-              </text>
-              <text
-                x="88%"
-                y="30%"
-                dominantBaseline="middle"
-                textAnchor="middle"
-                fontSize="18"
-              >
-                personal Todo 달성도
-              </text>
-            </svg>
-          </div>
+         {/* Todo 달성도를 가로 막대 그래프로 시각화 */}
+<div className="flex items-center justify-center pr-10">
+  <svg width="500" height="30" viewBox="0 0 700 30">
+    <text
+      x="0"
+      y="40%"
+      dominantBaseline="middle"
+      textAnchor="start"
+      fontSize="20
+      "
+    >
+      personal Todo 달성도
+    </text>
+    <rect
+      x="200"
+      y="0"
+      width="440"
+      height="20"
+      fill="#e6e6e6"
+      rx="10"
+    />
+    <rect
+      x="200"
+      y="0"
+      width={personalCompletionPercentage()}
+      height="20"
+      fill="#ec4899"
+      rx="10"
+    />
+    <text
+      x={200 + personalCompletionPercentage() + 10}
+      y="40%"
+      dominantBaseline="middle"
+      textAnchor="start"
+      fontSize="18"
+    >
+      {personalCompletionPercentageindex()}%
+    </text>
+  </svg>
+</div>
+
         <ul>
           {todos
               .filter((todo) => !todo.completed)
@@ -418,6 +441,7 @@ const TodoList = () => {
         </ul>
       </div>  
     </div>
+     
 {/* public section rendering */}
     <div className={styles.inputContainer}></div>
       Public Todo
@@ -426,7 +450,7 @@ const TodoList = () => {
        className="shadow-lg w-full p-1 mb-4 border border-gray-300 rounded"
        value={searchInput}
        onChange={(e) => setSearchInput(e.target.value)}
-       placeholder="personal todo 검색" // 검색창에 연한 회색 글씨 띄우기
+       placeholder="public todo 검색" // 검색창에 연한 회색 글씨 띄우기
     />
 
 {/* 검색 결과를 출력합니다. */}
@@ -474,6 +498,32 @@ const TodoList = () => {
         >
           Add Todo
         </button>
+       {/* 2. Public Todo 달성도 표시 */}
+      <div className="w-3/3 pl-4">
+        <h2 className="text-lg font-medium mb-2">Public Todo 달성도</h2>
+        <ul>
+          {publicTodos.map((publicTodo) => {
+            const { completedCount, totalCount } = calculatePublicTodoCompletion(publicTodo);
+            const completionPercentage = totalCount !== 0 ? Math.round((completedCount / totalCount) * 100) : 0;
+            const displayText = `${completedCount}/${totalCount}`;
+            return (
+              <li key={publicTodo.id} className="flex items-center mb-2">
+                <span className="w-1/2">{publicTodo.text} : {displayText}</span>
+
+                <div className="w-1/2 flex items-center">
+                  <div className="relative w-full h-4 bg-gray-300 rounded">
+                    <div
+                      className="absolute top-0 left-0 h-full bg-pink-500 rounded"
+                      style={{ width: `${completionPercentage}%` }}
+                    ></div>
+                  </div>
+                  <span className="ml-2">{completionPercentage}%</span>
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
         <div className="w-3/3">
         <h2 className="text-lg font-medium mb-2">Public Todo List</h2>
         <ul>

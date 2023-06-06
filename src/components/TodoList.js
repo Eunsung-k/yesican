@@ -552,6 +552,7 @@ const TodoList = () => {
         <ul>
           {publicTodos
             .filter((publicTodo) => publicTodo.joinedUsers && publicTodo.joinedUsers[data?.user.id])
+            .filter((publicTodo) => !publicTodo.joinedUsers[data?.user.id].completed)
             .map(todo => (
               <TodoItem
                   key={todo.id}
@@ -568,15 +569,14 @@ const TodoList = () => {
         <h2 className="text-lg font-medium mb-2">Completed Todo</h2>
         <ul>
           {publicTodos
-              .filter((publicTodo) => publicTodo.isPublic)
-              .filter((publicTodo) => publicTodo.completed)
               .filter((publicTodo) => publicTodo.joinedUsers && publicTodo.joinedUsers[data?.user.id])
-              .map((publicTodo) => (
+              .filter((publicTodo) => publicTodo.joinedUsers[data?.user.id].completed)
+              .map((todo) => (
                 <TodoItem
-                  key={publicTodo.id}
-                  todo={publicTodo}
-                  onToggle={() => toggleTodo(publicTodo.id)}
-                  onDelete={() => deleteTodo(publicTodo.id)}
+                  key={todo.id}
+                  todo={todo}
+                  onToggle={() => toggleJoinedTodo(todo.id)}
+                  onDelete={() => deleteTodo(todo.id)}
                 />
               ))
             } 

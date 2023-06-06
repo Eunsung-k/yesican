@@ -30,6 +30,26 @@ const handleLogout = async () => {
   await signOut();
 };
 
+const today =  () => {
+  let now = new Date(); //현재 날짜 및 시간
+  const month = new Array('January','February', 'March', 'April','May','June','July','August','September','October','November','December');
+  let todayMonth = month[now.getMonth()];
+  let todayDate = now.getDate() // 현재 날짜
+  const week = new Array('Sunday', 'Monday', 'Tuesday','Wednesday','Thursday','Friday','Saturday');
+  let dayWeek = week[now.getDay()]; //weekday에 지정된 날짜의 요일(0~6)반환
+
+  let daySuffix = 'th';
+  if (todayDate === 1 || todayDate === 21 || todayDate === 31) {
+    daySuffix = 'st';
+  } else if (todayDate === 2 || todayDate === 22) {
+    daySuffix = 'nd';
+  } else if (todayDate === 3 || todayDate === 23) {
+    daySuffix = 'rd';
+  }
+
+  return dayWeek + ', ' + todayMonth + ' ' + todayDate + daySuffix;
+}
+
 // TodoList 컴포넌트를 정의합니다.
 const TodoList = () => {
   const [todos, setTodos] = useState([]);
@@ -336,9 +356,12 @@ const TodoList = () => {
           Logout
         </button>
       </div>
-      <h1 className="text-xl mb-4 font-bold underline underline-offset-4 decoration-wavy text-pink-500">
-        {data?.user?.name}'s Todo List
+      <h1 className="text-2xl mt-10 font-bold  text-pink-500">
+        YES {data?.user?.name} CAN DO
       </h1>
+      <h2 className="text-xl text-center my-10 font-bold text-black-500">
+        {today()} 
+        </h2>
       <div className={styles.inputContainer}></div>
       Personal Todo
       <input

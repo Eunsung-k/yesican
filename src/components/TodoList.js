@@ -249,10 +249,10 @@ const TodoList = () => {
     const todoDoc = doc(todoCollection, id);
     const publicTodoDoc = doc(publicTodoCollection, id);
     
-    const todoSnapshot = await getDoc(publicTodoDoc);
+    const todoSnapshot = await getDoc(todoDoc);
     if(todoSnapshot.exists()) {
       const todoData = todoSnapshot.data();
-
+  
       if(todoData.isPublic && todoData.administratorId!=data?.user.id) {
         const current_id = data?.user.id;
         delete todoData.joinedUsers[current_id];
@@ -261,6 +261,21 @@ const TodoList = () => {
       }
     }
     
+    try {
+      // Delete from 'todoCollection' if exists
+      const todoSnapshot = await getDoc(todoDoc);
+      if (todoSnapshot.exists()) {
+        await deleteDoc(todoDoc);
+        setTodos((prevTodos) =>
+          prevTodos.filter((todo) => todo.id !== id)
+        );
+      }
+  
+      // Remove from 'publicTodos'
+      setPublicTodos((prevPublicTodos) => prevPublicTodos.filter((publicTodo) => publicTodo.id !== id));
+    } catch (error) {
+      console.error("Error deleting todo:", error);
+    }
     try {
       // Delete from 'publicTodoCollection' if exists
       const publicTodoSnapshot = await getDoc(publicTodoDoc);
@@ -278,6 +293,8 @@ const TodoList = () => {
     }
   };
 
+  
+  
   const joinPublicTodo = async (publicTodoId) => {
     const publicTodoDocRef = doc(publicTodoCollection, publicTodoId);
     const publicTodoSnapshot = await getDoc(publicTodoDocRef);

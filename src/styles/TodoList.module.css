@@ -5,6 +5,7 @@
   background-color: white;
   border-radius: 10px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  position: relative;
 }
 
 
@@ -42,8 +43,8 @@
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   /* position: absolute; 절대적 이동 */
   position: absolute;
-  left: 530px;
-  top: 225px;
+  right: 25px;
+  top:203px;
 }
 
 input[type="text"].itemInput {

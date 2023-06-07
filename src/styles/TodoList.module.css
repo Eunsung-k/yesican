@@ -1,10 +1,49 @@
 .container {
-  max-width: 600px;
+  max-width: 800px;
   margin: 20px auto;
   padding: 20px;
   background-color: white;
   border-radius: 10px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+
+.personalcontainer {
+  max-width: 350px;
+  margin: 20px auto;
+  padding: 20px;
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  /* position: absolute; 절대적 이동 */
+  position: relative;
+  left: -200px;
+}
+
+.publictodolistcontainer {
+  max-width: 350px;
+  margin: 20px auto;
+  padding: 20px;
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  /* position: absolute; 절대적 이동 */
+  position: relative;
+  left: -200px;
+  
+}
+
+.publictodocontainer {
+  max-width: 350px;
+  margin: 20px auto;
+  padding: 20px;
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  /* position: absolute; 절대적 이동 */
+  position: absolute;
+  left: 530px;
+  top: 225px;
 }
 
 input[type="text"].itemInput {
@@ -30,11 +69,13 @@ button.addButton {
   border: 1px solid #0070f3;
   border-radius: 5px;
   cursor: pointer;
+  float: right; /* 오른쪽 정렬 */
 }
 
 button.addButton:hover {
   background-color: #fff;
   color: #0070f3;
+  float: right; /* 오른쪽 정렬 */
 }
 
 .todoItem {
@@ -46,5 +87,9 @@ button.addButton:hover {
 .todoText {
   margin-left: 10px;
   flex-grow: 1;
+}
+
+.rightAlign {
+  float: right;
 }
 

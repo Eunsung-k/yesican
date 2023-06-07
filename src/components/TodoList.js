@@ -62,7 +62,7 @@ const TodoList = () => {
     const completedCount = todos.filter((todo) => todo.completed).length;
     const totalCount = todos.length;
     const percentage = totalCount !== 0 ? Math.round((completedCount / totalCount) * 100) : 0;
-    const barWidth = (440 * percentage) / 100; // 가로 막대의 너비
+    const barWidth = (800 * percentage) / 100; // 가로 막대의 너비
     
     return barWidth;
   };
@@ -358,19 +358,28 @@ const TodoList = () => {
     
   return (
     <div className={styles.container}>
+      {/* 로그아웃 버튼 */}
       <div className="w-1/2 pr-4">
         <button className={styles.logoutButton} onClick={() => signOut()}>
           Logout
         </button>
       </div>
+
+      {/* 타이틀 및 날짜 */}
       <h1 className="text-2xl mt-10 font-bold  text-pink-500">
-        YES "{data?.user?.name}" CAN DO!
+        YES, "{data?.user?.name}" CAN DO!
       </h1>
       <h2 className="text-xl text-center my-10 font-bold text-black-500">
         {today()} 
         </h2>
+
+        
+        {/* 여기부터 퍼스널 투두 */}
+      <div className={styles.personalcontainer}>
       <div className={styles.inputContainer}></div>
       Personal Todo
+
+      {/* 퍼스널 투두 입력창 */}
       <input
         type="text"
         className="shadow-lg w-full p-1 mb-4 border border-gray-300 rounded"
@@ -378,6 +387,8 @@ const TodoList = () => {
         onChange={(e) => setInput(e.target.value)}
         placeholder="personal todo 입력" // 검색창에 연한 회색 글씨 띄우기
       />
+
+      {/* 퍼스널 날짜 및 시간 선택 버튼 */}
       <input
         type="date"
         className={styles.itemInput}
@@ -390,8 +401,9 @@ const TodoList = () => {
         value={selectedTime}
         onChange={(e) => setSelectedTime(e.target.value)}
       />
-      <div class="grid">
-        <button
+      {/* 퍼스널 addtodo 버튼 */}
+      <div className="flex justify-end">
+      <button
           className="w-40 justify-self-end p-1 mb-4 bg-pink-500 text-white border border-pink-500 rounded hover:bg-white hover:text-pink-500"
           onClick={() => {
             addTodo();
@@ -399,49 +411,42 @@ const TodoList = () => {
         >
           Add Todo
         </button>
+        </div>
+        {/* 퍼스널 투두 리스트 타이틀 */}
         <div className="w-3/3 ">
         <h2 className="text-lg font-medium mb-2">Personal Todo List</h2>
-         {/* Todo 달성도를 가로 막대 그래프로 시각화 */}
-  <div className="flex items-center justify-center pr-10">
-  <svg width="500" height="30" viewBox="0 0 700 30">
-    <text
-      x="0"
-      y="40%"
-      dominantBaseline="middle"
-      textAnchor="start"
-      fontSize="20
-      "
-    >
-      personal Todo 달성도
-    </text>
-    <rect
-      x="200"
-      y="0"
-      width="440"
-      height="20"
-      fill="#e6e6e6"
-      rx="10"
-    />
-    <rect
-      x="200"
-      y="0"
-      width={personalCompletionPercentage()}
-      height="20"
-      fill="#ec4899"
-      rx="10"
-    />
-    <text
-      x={200 + personalCompletionPercentage() + 10}
-      y="40%"
-      dominantBaseline="middle"
-      textAnchor="start"
-      fontSize="18"
-    >
-      {personalCompletionPercentageindex()}%
-      </text>
-    </svg>
-  </div>
-
+        <h3 className="text-l font-medium mb-2">personal Todo 달성도</h3>
+         {/* 퍼스널 Todo 달성도 */}
+        <div className="flex items-center justify-center pr-10">
+        <svg viewBox="0 0 800 50">
+          <rect
+            x="0"
+            y="0"
+            width="800"
+            height="45"
+            fill="#e6e6e6"
+            rx="10"
+          />
+          <rect
+            x="0"
+            y="0"
+            width={personalCompletionPercentage()}
+            height="45"
+            fill="#ec4899"
+            rx="10"
+          />
+          <text
+            x={personalCompletionPercentage() - 100}
+            y="55%"
+            dominantBaseline="middle"
+            textAnchor="start"
+            fontSize="40"
+          >
+            {personalCompletionPercentageindex()}%
+            </text>
+          </svg>
+        </div>
+        {/* 퍼스널 투두 리스트 목록 */}
         <ul>
           {todos
               .filter((todo) => !todo.completed)
@@ -454,8 +459,9 @@ const TodoList = () => {
                 />
               ))}
         </ul>
-      </div>
-      <div className="w-3/3 pl-4">
+
+      {/* 퍼스널 컴플리트 투두 목록 */}
+      <div className=" w-3/3 pl-4">
         <h2 className="text-lg font-medium mb-2">Completed Todo</h2>
         <ul>
           {todos
@@ -465,14 +471,59 @@ const TodoList = () => {
                   key={todo.id}
                   todo={todo}
                   onToggle={() => toggleTodo(todo.id)}
-                  onDelete={() => deleteTodo(todo.id)}
+                  onDelete={() => deleteTodo(todo.id)}  
                 />
               ))} 
-        </ul>
+        </ul>                                      
       </div>  
     </div>
-     
-  {/* public section rendering */}
+    </div>
+     {/* 여기까지 퍼스널 투두 */}
+
+    
+     {/* 여기부터 퍼블릭 투두  */}
+
+     {/* 퍼블릭 투두 리스트 목록 */}
+     <div className={styles.publictodolistcontainer}>
+        <div className="w-3/3">
+        <h2 className="text-lg font-medium mb-2">Public Todo List</h2>
+        <ul>
+          {publicTodos
+            .filter((publicTodo) => publicTodo.joinedUsers && publicTodo.joinedUsers[data?.user.id])
+            .filter((publicTodo) => !publicTodo.joinedUsers[data?.user.id].completed)
+            .map(todo => (
+              <TodoItem
+                  key={todo.id}
+                  todo={todo}
+                  onToggle={() => toggleJoinedTodo(todo.id)}
+                  onDelete={() => deleteTodo(todo.id)}
+                />
+           ))}
+      </ul>
+      </div>
+
+      {/* 퍼블릭 컴플리트 투두 목록 */}
+      <div className="w-3/3 pl-4">
+        <h2 className="text-lg font-medium mb-2">Completed Todo</h2>
+        <ul>
+          {publicTodos
+              .filter((publicTodo) => publicTodo.joinedUsers && publicTodo.joinedUsers[data?.user.id])
+              .filter((publicTodo) => publicTodo.joinedUsers[data?.user.id].completed)
+              .map((todo) => (
+                <TodoItem
+                  key={todo.id}
+                  todo={todo}
+                  onToggle={() => toggleJoinedTodo(todo.id)}
+                  onDelete={() => deleteTodo(todo.id)}
+                />
+              ))
+            } 
+        </ul>
+      </div>
+    </div>
+
+    {/* 퍼블릭 투두 검색창 */}
+     <div className={styles.publictodocontainer}>
     <div className={styles.inputContainer}></div>
       Public Todo
       <input
@@ -483,7 +534,7 @@ const TodoList = () => {
        placeholder="public todo 검색" // 검색창에 연한 회색 글씨 띄우기
     />
 
-  {/* 검색 결과를 출력합니다. */}
+      {/* 퍼블릭 검색 결과 목록 */}
       <ul>
         {searchResults.map((result) => (
           <li key={result.id}>
@@ -499,13 +550,17 @@ const TodoList = () => {
         </li>
         ))}
       </ul>
+
+      {/* 퍼블릭 투두 추가창 */}
       <input
         type="text"
         className="shadow-lg w-full p-1 mb-4 border border-gray-300 rounded"
         value={publicInput}
         onChange={(e) => setPublicInput(e.target.value)}
-        placeholder="public todo 입력" // 검색창에 연한 회색 글씨 띄우기
+        placeholder="public todo를 목록에 추가" // 검색창에 연한 회색 글씨 띄우기
       />
+
+      {/* 퍼블릭 날짜 및 시간 선택 버튼 */}
       <input
         type="date"
         className={styles.itemInput}
@@ -518,8 +573,10 @@ const TodoList = () => {
         value={selectedTime}
         onChange={(e) => setSelectedTime(e.target.value)}
       />
-      <div class="grid">
-        <button
+
+      {/* 퍼블릭 addtodo 버튼 */}
+      <div className="flex justify-end">
+      <button
           className="w-40 justify-self-end p-1 mb-4 bg-pink-500 text-white border border-pink-500 rounded hover:bg-white hover:text-pink-500"
           onClick={() => {
             const promise = addPublicTodo();
@@ -528,7 +585,10 @@ const TodoList = () => {
         >
           Add Todo
         </button>
-       {/* 2. Public Todo 달성도 표시 */}
+        </div>
+     
+      <div class="grid">
+       {/* 퍼블릭 Todo 달성도 */}
       <div className="w-3/3 pl-4">
         <h2 className="text-lg font-medium mb-2">Public Todo 달성도</h2>
         <ul>
@@ -554,42 +614,9 @@ const TodoList = () => {
           })}
         </ul>
       </div>
-        <div className="w-3/3">
-        <h2 className="text-lg font-medium mb-2">Public Todo List</h2>
-        <ul>
-          {publicTodos
-            .filter((publicTodo) => publicTodo.joinedUsers && publicTodo.joinedUsers[data?.user.id])
-            .filter((publicTodo) => !publicTodo.joinedUsers[data?.user.id].completed)
-            .map(todo => (
-              <TodoItem
-                  key={todo.id}
-                  todo={todo}
-                  onToggle={() => toggleJoinedTodo(todo.id)}
-                  onDelete={() => deleteTodo(todo.id)}
-                />
-           ))}
-
- </ul>
-
       </div>
-      <div className="w-3/3 pl-4">
-        <h2 className="text-lg font-medium mb-2">Completed Todo</h2>
-        <ul>
-          {publicTodos
-              .filter((publicTodo) => publicTodo.joinedUsers && publicTodo.joinedUsers[data?.user.id])
-              .filter((publicTodo) => publicTodo.joinedUsers[data?.user.id].completed)
-              .map((todo) => (
-                <TodoItem
-                  key={todo.id}
-                  todo={todo}
-                  onToggle={() => toggleJoinedTodo(todo.id)}
-                  onDelete={() => deleteTodo(todo.id)}
-                />
-              ))
-            } 
-        </ul>
       </div>
-    </div>
+    {/* 여기까지 퍼블릭 투두 */}
   </div>
   );
 }

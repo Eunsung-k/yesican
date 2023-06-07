@@ -24,7 +24,6 @@ import tailwindConfig from "../../tailwind.config";
 
 const todoCollection = collection(db, "todos");
 const publicTodoCollection = collection (db, "publicTodos");
-const myPublicTodoCollection = collection (db, "myPublicTodos");
 
 const handleLogout = async () => {
   await signOut();
@@ -54,7 +53,6 @@ const today =  () => {
 const TodoList = () => {
   const [todos, setTodos] = useState([]);
   const [publicTodos, setPublicTodos] = useState([]);
-  const [myPublicTodos, setMyPublicTodos] = useState([]); // myPublicTodo 카테고리 추가
   const [input, setInput] = useState("");
   const [publicInput, setPublicInput] = useState(""); // public 카테고리 인풋 추가. 
   const [selectedDate, setSelectedDate] = useState(null);
@@ -84,36 +82,33 @@ const TodoList = () => {
   };
 
  // 1. Public Todo 달성도 계산 함수
- const calculatePublicTodoCompletion = (publicTodo) => {
-  const joinedUsers = publicTodo.joinedUsers;
-  if (!joinedUsers) {
-    return {
-      completedCount: 0,
-      totalCount: 0,
-    };
-  }
-  const joinedUserIds = Object.keys(joinedUsers);
-  const completedCount = joinedUserIds.reduce((count, userId) => {
-    if (joinedUsers[userId].completed) {
-      return count + 1;
+  const calculatePublicTodoCompletion = (publicTodo) => {
+    const joinedUsers = publicTodo.joinedUsers;
+    if (!joinedUsers) {
+      return {
+        completedCount: 0,
+        totalCount: 0,
+      };
     }
-    return count;
-  }, 0);
-  const totalCount = joinedUserIds.length;
-  return {
-    completedCount,
-    totalCount,
+    const joinedUserIds = Object.keys(joinedUsers);
+    const completedCount = joinedUserIds.reduce((count, userId) => {
+      if (joinedUsers[userId].completed) {
+        return count + 1;
+      }
+      return count;
+    }, 0);
+    const totalCount = joinedUserIds.length;
+    return {
+      completedCount,
+      totalCount,
+    };
   };
-};
 
   //검색
   const [searchInput, setSearchInput] = useState("");
   const [searchResults, setSearchResults] = useState([]);
 
-  //join
-  const [joinableTodoId, setJoinableTodoId] = useState(null);
-
-// 검색어 입력값이 변경될 때마다 검색 결과를 업데이트합니다.
+  // 검색어 입력값이 변경될 때마다 검색 결과를 업데이트합니다.
   useEffect(() => {
     // 검색어가 비어있는 경우 모든 publicTodos를 검색 결과로 설정합니다.
     if (searchInput.trim() === "") {
@@ -133,9 +128,8 @@ const TodoList = () => {
     let userUnsubscribe;
     let publicUnsubscribe;
   
-    const getUserTodos = async () => {
+    const getUserTodos = async () =>{
       if (!data?.user?.name) return;
-  
       const userTodoQuery = query(
         todoCollection,
         where("userId", "==", data?.user?.id),
@@ -225,35 +219,31 @@ const TodoList = () => {
 
 
   const toggleTodo = async (id, isPublic) => {
-  const collectionRef = isPublic ? publicTodoCollection : todoCollection;
-  const todoDocRef = doc(collectionRef, id);
-  const todoSnapshot = await getDoc(todoDocRef);
+    const collectionRef = isPublic ? publicTodoCollection : todoCollection;
+    const todoDocRef = doc(collectionRef, id);
+    const todoSnapshot = await getDoc(todoDocRef);
 
-  if (todoSnapshot.exists()) {
-    const todoData = todoSnapshot.data();
-    const updatedCompleted = !todoData.completed;
+    if (todoSnapshot.exists()) {
+      const todoData = todoSnapshot.data();
+      const updatedCompleted = !todoData.completed;
 
-    await updateDoc(todoDocRef, { completed: updatedCompleted });
+      await updateDoc(todoDocRef, { completed: updatedCompleted });
 
-    if (isPublic) {
-      setPublicTodos(prevPublicTodos => {
-        return prevPublicTodos.map(todo =>
-          todo.id === id ? { ...todo, completed: updatedCompleted } : todo
-        );
-      });
-    } else {
-      setTodos(prevTodos => {
-        return prevTodos.map(todo =>
-          todo.id === id ? { ...todo, completed: updatedCompleted } : todo
-        );
-      });
+      if (isPublic) {
+        setPublicTodos(prevPublicTodos => {
+          return prevPublicTodos.map(todo =>
+            todo.id === id ? { ...todo, completed: updatedCompleted } : todo
+          );
+        });
+      } else {
+        setTodos(prevTodos => {
+          return prevTodos.map(todo =>
+            todo.id === id ? { ...todo, completed: updatedCompleted } : todo
+          );
+        });
+      }
     }
-  }
-};
-
-  
-  
-  
+  };
 
   const deleteTodo = async (id) => {
     const todoDoc = doc(todoCollection, id);
@@ -288,35 +278,35 @@ const TodoList = () => {
     }
   };
 
-    const joinPublicTodo = async (publicTodoId) => {
-      const publicTodoDocRef = doc(publicTodoCollection, publicTodoId);
-      const publicTodoSnapshot = await getDoc(publicTodoDocRef);
-    
-      if (publicTodoSnapshot.exists()) {
-        const publicTodoData = publicTodoSnapshot.data();
-    
-        // Get the current user's information
-        const currentUser = data?.user;
-    
-        // Check if the user has already joined
-        if (
-          currentUser &&
-          publicTodoData.joinedUsers &&
-          publicTodoData.joinedUsers[currentUser.id]
-        ) {
-          return;
-        }
-    
-        // Update the joinedUsers field
-        const joinedUser = { completed: false };
-        const updatedJoinedUsers = {
-          ...(publicTodoData.joinedUsers || {}),
-          [currentUser.id]: joinedUser,
-        };
-    
-        await updateDoc(publicTodoDocRef, { joinedUsers: updatedJoinedUsers });
+  const joinPublicTodo = async (publicTodoId) => {
+    const publicTodoDocRef = doc(publicTodoCollection, publicTodoId);
+    const publicTodoSnapshot = await getDoc(publicTodoDocRef);
+  
+    if (publicTodoSnapshot.exists()) {
+      const publicTodoData = publicTodoSnapshot.data();
+  
+      // Get the current user's information
+      const currentUser = data?.user;
+  
+      // Check if the user has already joined
+      if (
+        currentUser &&
+        publicTodoData.joinedUsers &&
+        publicTodoData.joinedUsers[currentUser.id]
+      ) {
+        return;
       }
-    };
+  
+      // Update the joinedUsers field
+      const joinedUser = { completed: false };
+      const updatedJoinedUsers = {
+        ...(publicTodoData.joinedUsers || {}),
+        [currentUser.id]: joinedUser,
+      };
+  
+      await updateDoc(publicTodoDocRef, { joinedUsers: updatedJoinedUsers });
+    }
+  };
     
     const toggleJoinedTodo = async (publicTodoId) => {
       const publicTodoDocRef = doc(publicTodoCollection, publicTodoId);
@@ -395,7 +385,7 @@ const TodoList = () => {
         <div className="w-3/3 ">
         <h2 className="text-lg font-medium mb-2">Personal Todo List</h2>
          {/* Todo 달성도를 가로 막대 그래프로 시각화 */}
-<div className="flex items-center justify-center pr-10">
+  <div className="flex items-center justify-center pr-10">
   <svg width="500" height="30" viewBox="0 0 700 30">
     <text
       x="0"
@@ -431,9 +421,9 @@ const TodoList = () => {
       fontSize="18"
     >
       {personalCompletionPercentageindex()}%
-    </text>
-  </svg>
-</div>
+      </text>
+    </svg>
+  </div>
 
         <ul>
           {todos
@@ -465,7 +455,7 @@ const TodoList = () => {
       </div>  
     </div>
      
-{/* public section rendering */}
+  {/* public section rendering */}
     <div className={styles.inputContainer}></div>
       Public Todo
       <input
@@ -476,7 +466,7 @@ const TodoList = () => {
        placeholder="public todo 검색" // 검색창에 연한 회색 글씨 띄우기
     />
 
-{/* 검색 결과를 출력합니다. */}
+  {/* 검색 결과를 출력합니다. */}
       <ul>
         {searchResults.map((result) => (
           <li key={result.id}>
@@ -560,9 +550,9 @@ const TodoList = () => {
                   onToggle={() => toggleJoinedTodo(todo.id)}
                   onDelete={() => deleteTodo(todo.id)}
                 />
-))}
+           ))}
 
-</ul>
+ </ul>
 
       </div>
       <div className="w-3/3 pl-4">
@@ -585,5 +575,5 @@ const TodoList = () => {
     </div>
   </div>
   );
-};
+}
 export default TodoList;

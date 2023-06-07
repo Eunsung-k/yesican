@@ -357,7 +357,7 @@ const TodoList = () => {
         </button>
       </div>
       <h1 className="text-2xl mt-10 font-bold  text-pink-500">
-        YES {data?.user?.name} CAN DO
+        YES "{data?.user?.name}" CAN DO!
       </h1>
       <h2 className="text-xl text-center my-10 font-bold text-black-500">
         {today()} 

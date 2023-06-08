@@ -686,24 +686,26 @@ const TodoList = () => {
       <div className="w-3/3 pl-4">
         <h2 className="text-lg font-medium mb-2">Public Todo 달성도</h2>
         <ul>
-          {publicTodos.map((publicTodo) => {
-            const { completedCount, totalCount } = calculatePublicTodoCompletion(publicTodo);
-            const completionPercentage = totalCount !== 0 ? Math.round((completedCount / totalCount) * 100) : 0;
-            const displayText = `${completedCount}/${totalCount}`;
-            return (
-              <li key={publicTodo.id} className="flex items-center mb-2">
-                <span className="w-1/2">{publicTodo.text} : {displayText} (완료/전체)</span>
+          {publicTodos
+            .filter((publicTodo) => publicTodo.joinedUsers && publicTodo.joinedUsers[data?.user.id])
+            .map((publicTodo) => {
+              const { completedCount, totalCount } = calculatePublicTodoCompletion(publicTodo);
+              const completionPercentage = totalCount !== 0 ? Math.round((completedCount / totalCount) * 100) : 0;
+              const displayText = `${completedCount}/${totalCount}`;
+              return (
+                <li key={publicTodo.id} className="flex items-center mb-2">
+                  <span className="w-1/2">{publicTodo.text} : {displayText} (완료/전체)</span>
 
-                <div className="w-1/2 flex items-center">
-                  <div className="relative w-full h-4 bg-gray-300 rounded">
-                    <div
-                      className="absolute top-0 left-0 h-full bg-pink-500 rounded"
-                      style={{ width: `${completionPercentage}%` }}
-                    ></div>
+                  <div className="w-1/2 flex items-center">
+                    <div className="relative w-full h-4 bg-gray-300 rounded">
+                      <div
+                        className="absolute top-0 left-0 h-full bg-pink-500 rounded"
+                        style={{ width: `${completionPercentage}%` }}
+                      ></div>
+                    </div>
+                    <span className="ml-2">{completionPercentage}%</span>
                   </div>
-                  <span className="ml-2">{completionPercentage}%</span>
-                </div>
-              </li>
+                </li>
             );
           })}
         </ul>

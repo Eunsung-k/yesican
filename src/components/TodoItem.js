@@ -11,6 +11,7 @@ import styles from "@/styles/TodoList.module.css";
 const TodoItem = ({ todo, onToggle, onDelete, currentUserId, onDeletePub }) => {
   const joinedUser = todo.joinedUsers?.[currentUserId];
   const isCompleted = todo.completed || (joinedUser && joinedUser.completed);
+
   // 각 할 일 항목을 렌더링합니다.
   return (
     <li className={styles.todoItem}>

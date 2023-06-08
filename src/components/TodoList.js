@@ -228,7 +228,6 @@ const TodoList = () => {
     if (todoSnapshot.exists()) {
       const todoData = todoSnapshot.data();
       const updatedCompleted = !todoData.completed;
-
       await updateDoc(todoDocRef, { completed: updatedCompleted });
 
       if (isPublic) {
@@ -404,10 +403,10 @@ const TodoList = () => {
   const toggleJoinedTodo = async (publicTodoId) => {
     const publicTodoDocRef = doc(publicTodoCollection, publicTodoId);
     const publicTodoSnapshot = await getDoc(publicTodoDocRef);
-  
+
     if (publicTodoSnapshot.exists()) {
       const publicTodoData = publicTodoSnapshot.data();
-  
+      const updatedCompleted = !publicTodoData.completed;
       // Get the current user's information
       const currentUser = data?.user;
   
@@ -419,11 +418,12 @@ const TodoList = () => {
       ) {
         // User has already joined, so toggle the completed value
         const joinedUser = publicTodoData.joinedUsers[currentUser.id];
+        const updatedCompleted = !joinedUser.completed;
         const updatedJoinedUsers = {
           ...publicTodoData.joinedUsers,
           [currentUser.id]: {
             ...joinedUser,
-            completed: !joinedUser.completed,
+            completed: updatedCompleted,
           },
         };
   
@@ -436,7 +436,7 @@ const TodoList = () => {
               return {
                 ...todo,
                 joinedUsers: updatedJoinedUsers,
-                completed: !joinedUser.completed,
+                completed: updatedCompleted,
               };
             }
             return todo;
@@ -588,6 +588,7 @@ const TodoList = () => {
                   todo={todo}
                   onToggle={() => toggleJoinedTodo(todo.id)}
                   onDelete={() => deleteTodo(todo.id)}
+                  currentUserId={data?.user.id}
                   onDeletePub={() => deleteMyPublicTodo(todo.id)}
 
                 />
@@ -608,6 +609,7 @@ const TodoList = () => {
                   todo={todo}
                   onToggle={() => toggleJoinedTodo(todo.id)}
                   onDelete={() => deleteTodo(todo.id)}
+                  currentUserId={data?.user.id}
                   onDeletePub={() => deleteMyPublicTodo(todo.id)}
                 />
               ))

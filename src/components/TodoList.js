@@ -57,6 +57,7 @@ const TodoList = () => {
   const [publicInput, setPublicInput] = useState(""); // public 카테고리 인풋 추가. 
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedTime, setSelectedTime] = useState(null);
+  const [isAdmin, setIsAdmin] = useState(false); // Add isAdmin state
 
   const personalCompletionPercentage = () => {
     const completedCount = todos.filter((todo) => todo.completed).length;
@@ -211,6 +212,7 @@ const TodoList = () => {
     setPublicInput("");
     setSelectedDate(null);
     setSelectedTime(null);
+    setIsAdmin(true);
     console.log('here');
     console.log(docRef.id);
     console.log('end');
@@ -245,6 +247,8 @@ const TodoList = () => {
     }
   };
 
+//기존 deletetodo
+/*
   const deleteTodo = async (id) => {
     const todoDoc = doc(todoCollection, id);
     const publicTodoDoc = doc(publicTodoCollection, id);
@@ -293,7 +297,79 @@ const TodoList = () => {
     }
   };
 
+*/
+
+  //그룹장이 그룹을 지우는 deletion 기능. 
+  const deleteTodo = async (id) => {
+    const todoDoc = doc(todoCollection, id);
+    const publicTodoDoc = doc(publicTodoCollection, id);
+    
+    const todoSnapshot = await getDoc(todoDoc);
+    if(todoSnapshot.exists()) {
+      const todoData = todoSnapshot.data();
   
+      if(todoData.isPublic && todoData.administratorId!=data?.user.id) {
+        /*
+        const current_id = data?.user.id;
+        delete todoData.joinedUsers[current_id];
+        await updateDoc(publicTodoDoc, { joinedUsers:todoData.joinedUsers});
+        */
+        return;
+      }
+    }
+    
+    try {
+      // Delete from 'todoCollection' if exists
+      const todoSnapshot = await getDoc(todoDoc);
+      if (todoSnapshot.exists()) {
+        await deleteDoc(todoDoc);
+        setTodos((prevTodos) => prevTodos.filter((todo) => todo.id !== id));
+      }
+  
+      // Delete from 'publicTodoCollection' if exists
+      const publicTodoSnapshot = await getDoc(publicTodoDoc);
+      if (publicTodoSnapshot.exists()) {
+        const publicTodoData = publicTodoSnapshot.data();
+  
+        // Check if the user is an administrator of the public todo
+        if (publicTodoData.administratorId === data?.user?.id) {
+          await deleteDoc(publicTodoDoc);
+          setPublicTodos((prevPublicTodos) =>
+            prevPublicTodos.filter((publicTodo) => publicTodo.id !== id)
+          );
+        }
+      }
+    } catch (error) {
+      console.error("Error deleting todo:", error);
+    }
+  };
+
+  //조인한 그룹을 내 퍼블릭 투두 목록에서 지우는 deletion 기능
+
+  const deleteMyPublicTodo = async (id) => {
+    const publicTodoDocRef = doc(publicTodoCollection, id);
+
+    
+    // Remove from user's public todo list if exists
+    const publicTodoSnapshot = await getDoc(publicTodoDocRef);
+    if (publicTodoSnapshot.exists()) {
+      const publicTodoData = publicTodoSnapshot.data();
+    
+
+      // Check if the user is the owner of the public todo
+      
+        // Remove the public todo from the user's public todo list
+        const updatedJoinedUsers = { ...publicTodoData.joinedUsers };
+        delete updatedJoinedUsers[data?.user?.id];
+
+        await updateDoc(publicTodoDocRef, { joinedUsers: updatedJoinedUsers });
+      
+    }
+  
+};
+
+
+
   
   const joinPublicTodo = async (publicTodoId) => {
     const publicTodoDocRef = doc(publicTodoCollection, publicTodoId);
@@ -325,36 +401,51 @@ const TodoList = () => {
     }
   };
     
-    const toggleJoinedTodo = async (publicTodoId) => {
-      const publicTodoDocRef = doc(publicTodoCollection, publicTodoId);
-      const publicTodoSnapshot = await getDoc(publicTodoDocRef);
-    
-      if (publicTodoSnapshot.exists()) {
-        const publicTodoData = publicTodoSnapshot.data();
-    
-        // Get the current user's information
-        const currentUser = data?.user;
-    
-        // Check if the user has already joined
-        if (
-          currentUser &&
-          publicTodoData.joinedUsers &&
-          publicTodoData.joinedUsers[currentUser.id]
-        ) {
-          // User has already joined, so toggle the completed value
-          const joinedUser = publicTodoData.joinedUsers[currentUser.id];
-          const updatedJoinedUsers = {
-            ...publicTodoData.joinedUsers,
-            [currentUser.id]: {
-              ...joinedUser,
-              completed: !joinedUser.completed,
-            },
-          };
-    
-          await updateDoc(publicTodoDocRef, { joinedUsers: updatedJoinedUsers });
-        }
+  const toggleJoinedTodo = async (publicTodoId) => {
+    const publicTodoDocRef = doc(publicTodoCollection, publicTodoId);
+    const publicTodoSnapshot = await getDoc(publicTodoDocRef);
+  
+    if (publicTodoSnapshot.exists()) {
+      const publicTodoData = publicTodoSnapshot.data();
+  
+      // Get the current user's information
+      const currentUser = data?.user;
+  
+      // Check if the user has already joined
+      if (
+        currentUser &&
+        publicTodoData.joinedUsers &&
+        publicTodoData.joinedUsers[currentUser.id]
+      ) {
+        // User has already joined, so toggle the completed value
+        const joinedUser = publicTodoData.joinedUsers[currentUser.id];
+        const updatedJoinedUsers = {
+          ...publicTodoData.joinedUsers,
+          [currentUser.id]: {
+            ...joinedUser,
+            completed: !joinedUser.completed,
+          },
+        };
+  
+        await updateDoc(publicTodoDocRef, { joinedUsers: updatedJoinedUsers });
+  
+        // Update the publicTodos state with the updated completed status
+        setPublicTodos((prevPublicTodos) => {
+          return prevPublicTodos.map((todo) => {
+            if (todo.id === publicTodoId) {
+              return {
+                ...todo,
+                joinedUsers: updatedJoinedUsers,
+                completed: !joinedUser.completed,
+              };
+            }
+            return todo;
+          });
+        });
       }
-    };    
+    }
+  };
+   
     
   return (
     <div className={styles.container}>
@@ -497,6 +588,8 @@ const TodoList = () => {
                   todo={todo}
                   onToggle={() => toggleJoinedTodo(todo.id)}
                   onDelete={() => deleteTodo(todo.id)}
+                  onDeletePub={() => deleteMyPublicTodo(todo.id)}
+
                 />
            ))}
       </ul>
@@ -515,6 +608,7 @@ const TodoList = () => {
                   todo={todo}
                   onToggle={() => toggleJoinedTodo(todo.id)}
                   onDelete={() => deleteTodo(todo.id)}
+                  onDeletePub={() => deleteMyPublicTodo(todo.id)}
                 />
               ))
             } 

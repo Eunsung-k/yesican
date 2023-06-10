@@ -29,7 +29,7 @@ const TodoItem = ({ todo, onToggle, onDelete, currentUserId, onDeletePub, weekly
       </span>
 
       {/*weeklyGoal 렌더링*/}
-      <span> 주 {weeklyGoal}회</span> 
+      <span> 주 {todo.weeklyGoal}회</span> 
       &nbsp;
       <span>{todo.date}</span>
       &nbsp;

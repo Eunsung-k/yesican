@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { signOut, useSession } from "next-auth/react";
 import TodoItem from "@/components/TodoItem";
-import { today } from "@/utils";
+import { today, getMidnight, weekRange } from "@/utils";
 import styles from "@/styles/TodoList.module.css";
 
 import { db } from "@/firebase";
@@ -35,24 +35,17 @@ const TodoList = () => {
   const [myDate, setMyDate] = useState(new Date()); //날짜별로 투두리스트 저장 테스트
   const [weeklyGoal, setWeeklyGoal] = useState(null);//weeklyGoal 테스트
   const [inputGoal, setInputGoal] = useState(null); //weeklygaol 테스트
+  const [weeklyCompleted, setWeeklyCompleted] = useState(0);
   const [isGoalOptionsOpen, setIsGoalOptionsOpen] = useState(false); //weeklyGoal 테스트
   const [todos, setTodos] = useState([]);
   const [publicTodos, setPublicTodos] = useState([]);
   const [input, setInput] = useState("");
   const [publicInput, setPublicInput] = useState(""); // public 카테고리 인풋 추가. 
-  const [selectedDate, setSelectedDate] = useState(null);
+  const [selectedDate, setSelectedDate] = useState(new Date());
   const [selectedTime, setSelectedTime] = useState(null);
   const [isAdmin, setIsAdmin] = useState(false); // Add isAdmin state
 
-  const personalCompletionPercentage = () => {
-    const completedCount = todos.filter((todo) => todo.completed).length;
-    const totalCount = todos.length;
-    const percentage = totalCount !== 0 ? Math.round((completedCount / totalCount) * 100) : 0;
-    const barWidth = (800 * percentage) / 100; // 가로 막대의 너비
-    
-    return barWidth;
-  };
-  
+  /*
   const goBackward = () => {
     const prevDate = new Date(myDate);
     prevDate.setDate(prevDate.getDate() - 1);
@@ -73,7 +66,17 @@ const TodoList = () => {
       todoDate.getDate() === myDate.getDate()
     );
   });
+*/
 
+  const personalCompletionPercentage = () => {
+    const completedCount = todos.filter((todo) => todo.completed).length;
+    const totalCount = todos.length;
+    const percentage = totalCount !== 0 ? Math.round((completedCount / totalCount) * 100) : 0;
+    const barWidth = (800 * percentage) / 100; // 가로 막대의 너비
+    
+    return barWidth;
+  };
+  
 
   const personalCompletionPercentageindex = () => {
     const completedCount = todos.filter((todo) => todo.completed).length;
@@ -218,7 +221,7 @@ const TodoList = () => {
     setInput("");
     setSelectedDate(null);
     setSelectedTime(null);
-    setInputGoal(null);
+    setInputGoal(null);//todo 입력창에서 설정한 주간 목표 횟수
   };
 
     // goal 입력
@@ -255,7 +258,7 @@ const TodoList = () => {
     return docRef.id;
   };
 
-
+/* 
   const toggleTodo = async (id, isPublic) => {
     const collectionRef = isPublic ? publicTodoCollection : todoCollection;
     const todoDocRef = doc(collectionRef, id);
@@ -281,6 +284,56 @@ const TodoList = () => {
       }
     }
   };
+  */
+
+  const toggleTodo = async (id, isPublic, weeklyGoal, weeklyCompleted) => {
+    const collectionRef = isPublic ? publicTodoCollection : todoCollection;
+    const todoDocRef = doc(collectionRef, id);
+    const todoSnapshot = await getDoc(todoDocRef);
+
+    if (todoSnapshot.exists()) {
+      const todoData = todoSnapshot.data();
+      const updatedCompleted = !todoData.completed;
+      const updatedWeeklyCompleted = updatedCompleted ? weeklyCompleted + 1 : weeklyCompleted - 1;
+      await updateDoc(todoDocRef, { completed: updatedCompleted });
+
+      if (isPublic) {
+        setPublicTodos(prevPublicTodos => {
+          return prevPublicTodos.map(todo =>
+            todo.id === id ? { ...todo, completed: updatedCompleted,  weeklyCompleted: updatedWeeklyCompleted } : todo
+          );
+        });
+      } else {
+        setTodos(prevTodos => {
+          return prevTodos.map(todo =>
+            todo.id === id 
+            ? { ...todo, completed: updatedCompleted,  weeklyCompleted: updatedWeeklyCompleted } : todo
+          );
+        });
+      }
+     // if (updatedCompleted) {
+     //   setWeeklyCompleted(weeklyCompleted => weeklyCompleted + 1);
+     // } else {
+     //   setWeeklyCompleted(weeklyCompleted => weeklyCompleted - 1);
+     // }
+    }
+      
+    };
+
+    const calculateWeeklyCompletedCount = (todos, weekStart, weekEnd) => {
+      let completedCount = 0;
+      let goalCount = 0;
+      todos.forEach((todo) => {
+        if (todo.completed && isDateInRange(todo.date, weekStart, weekEnd)) {
+          completedCount++;
+        }
+        if (isDateInRange(todo.date, weekStart, weekEnd)) {
+          goalCount++;
+        }
+      });
+      return `${completedCount}/${goalCount}`;
+    };
+  
 
 //기존 deletetodo
 /*
@@ -481,6 +534,8 @@ const TodoList = () => {
       }
     }
   };
+
+
    
     
   return (
@@ -600,6 +655,7 @@ const TodoList = () => {
                   todo={todo}
                   onToggle={() => toggleTodo(todo.id)}
                   onDelete={() => deleteTodo(todo.id)}
+                  
                 />
               ))}
         </ul>

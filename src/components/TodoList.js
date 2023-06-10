@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { signOut, useSession } from "next-auth/react";
 import TodoItem from "@/components/TodoItem";
+import { today } from "@/utils";
 import styles from "@/styles/TodoList.module.css";
 
 import { db } from "@/firebase";
@@ -29,28 +30,12 @@ const handleLogout = async () => {
   await signOut();
 };
 
-const today =  () => {
-  let now = new Date(); //현재 날짜 및 시간
-  const month = new Array('January','February', 'March', 'April','May','June','July','August','September','October','November','December');
-  let todayMonth = month[now.getMonth()];
-  let todayDate = now.getDate() // 현재 날짜
-  const week = new Array('Sunday', 'Monday', 'Tuesday','Wednesday','Thursday','Friday','Saturday');
-  let dayWeek = week[now.getDay()]; //weekday에 지정된 날짜의 요일(0~6)반환
-
-  let daySuffix = 'th';
-  if (todayDate === 1 || todayDate === 21 || todayDate === 31) {
-    daySuffix = 'st';
-  } else if (todayDate === 2 || todayDate === 22) {
-    daySuffix = 'nd';
-  } else if (todayDate === 3 || todayDate === 23) {
-    daySuffix = 'rd';
-  }
-
-  return dayWeek + ', ' + todayMonth + ' ' + todayDate + daySuffix;
-}
-
 // TodoList 컴포넌트를 정의합니다.
 const TodoList = () => {
+  const [myDate, setMyDate] = useState(new Date()); //날짜별로 투두리스트 저장 테스트
+  const [weeklyGoal, setWeeklyGoal] = useState(null);//weeklyGoal 테스트
+  const [inputGoal, setInputGoal] = useState(null); //weeklygaol 테스트
+  const [isGoalOptionsOpen, setIsGoalOptionsOpen] = useState(false); //weeklyGoal 테스트
   const [todos, setTodos] = useState([]);
   const [publicTodos, setPublicTodos] = useState([]);
   const [input, setInput] = useState("");
@@ -68,6 +53,27 @@ const TodoList = () => {
     return barWidth;
   };
   
+  const goBackward = () => {
+    const prevDate = new Date(myDate);
+    prevDate.setDate(prevDate.getDate() - 1);
+    setMyDate(prevDate);
+  };
+
+  const goForward = () => {
+    const nextDate = new Date(myDate);
+    nextDate.setDate(nextDate.getDate() + 1);
+    setMyDate(nextDate);
+  };
+
+  const filteredTodos = todos.filter((todo) => {
+    const todoDate = new Date(todo.createdDate);
+    return (
+      todoDate.getFullYear() === myDate.getFullYear() &&
+      todoDate.getMonth() === myDate.getMonth() &&
+      todoDate.getDate() === myDate.getDate()
+    );
+  });
+
 
   const personalCompletionPercentageindex = () => {
     const completedCount = todos.filter((todo) => todo.completed).length;
@@ -175,6 +181,11 @@ const TodoList = () => {
   }, [data]);
 
 
+    // 입력값 변경 시 inputGoal 상태 업데이트
+    const handleGoalInputChange = (event) => {
+      setInputGoal(parseInt(event.target.value));
+    };
+
   // addTodo 함수는 입력값을 이용하여 새로운 할 일을 목록에 추가하는 함수입니다.
   const addTodo = async() => {
     // 입력값이 비어있는 경우 함수를 종료합니다.
@@ -187,14 +198,39 @@ const TodoList = () => {
       time: selectedTime,
       datetime: new Date(),
       isPublic: false,
+      createdDate: new Date(), // 리스트를 추가한 날짜 정보를 추가합니다.
+      weeklyGoal: inputGoal, // 주간 목표 초기값 설정
+      weeklyCompleted: 0, // 주간 완료 횟수
     });
 
-    const newTodo = {id: docRef.id, text: input, completed: false, date: selectedDate, time: selectedTime };
+    const newTodo = {
+      id: docRef.id, 
+      text: input, 
+      completed: false, 
+      date: selectedDate, 
+      time: selectedTime,
+      createdDate: new Date(), // 리스트를 추가한 날짜 정보를 추가합니다.
+      weeklyGoal: inputGoal, // 주간 목표 초기값 설정
+      weeklyCompleted: 0, // 주간 완료 횟수
+     };
+
     setTodos([...todos, newTodo]);
     setInput("");
     setSelectedDate(null);
     setSelectedTime(null);
+    setInputGoal(null);
   };
+
+    // goal 입력
+    const handleGoalSelect = (weeklyGoal) => {
+      setInputGoal(weeklyGoal);
+      setIsGoalOptionsOpen(false);
+    };
+
+   // goal 옵션 토글
+    const toggleGoalOptions = () => {
+      setIsGoalOptionsOpen(!isGoalOptionsOpen);
+    };
 
   const addPublicTodo = async() => {
     if (publicInput.trim() === "") return;
@@ -479,6 +515,23 @@ const TodoList = () => {
         placeholder="personal todo 입력" // 검색창에 연한 회색 글씨 띄우기
       />
 
+      {/*Personal Todo weeklyGoal test*/}
+      <div>
+        주
+        <button onClick={toggleGoalOptions}>
+          {inputGoal ? inputGoal : "n"}회
+        </button>
+        {isGoalOptionsOpen && (
+          <ul>
+            {[1, 2, 3, 4, 5, 6, 7].map((num) => (
+              <li key={num} onClick={() => handleGoalSelect(num)}>
+                {num}
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+
       {/* 퍼스널 날짜 및 시간 선택 버튼 */}
       <input
         type="date"
@@ -561,6 +614,7 @@ const TodoList = () => {
                 <TodoItem
                   key={todo.id}
                   todo={todo}
+                  weeklyGoal={weeklyGoal} // weeklyGoal prop 전달
                   onToggle={() => toggleTodo(todo.id)}
                   onDelete={() => deleteTodo(todo.id)}  
                 />

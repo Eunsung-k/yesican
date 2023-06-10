@@ -8,7 +8,7 @@ import React from "react";
 import styles from "@/styles/TodoList.module.css";
 
 // TodoItem 컴포넌트를 정의합니다.
-const TodoItem = ({ todo, onToggle, onDelete, currentUserId, onDeletePub }) => {
+const TodoItem = ({ todo, onToggle, onDelete, currentUserId, onDeletePub, weeklyGoal }) => {
   const joinedUser = todo.joinedUsers?.[currentUserId];
   const isCompleted = todo.completed || (joinedUser && joinedUser.completed);
 
@@ -28,13 +28,16 @@ const TodoItem = ({ todo, onToggle, onDelete, currentUserId, onDeletePub }) => {
         {todo.text}
       </span>
 
+      {/*weeklyGoal 렌더링*/}
+      <span> 주 {weeklyGoal}회</span> 
+      &nbsp;
       <span>{todo.date}</span>
       &nbsp;
       <span>{todo.time}</span>
       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
       {/* 삭제 버튼을 렌더링하고, 클릭 시 onDelete 함수를 호출하여 해당 할 일을 삭제합니다. */}
-      <button onClick={onDelete}>DeleteGroup</button>
-      <button onClick={onDeletePub}>DeleteList</button>
+      <button onClick={onDelete}>Delete</button>
+      <button onClick={onDeletePub}>DeletePub</button>
     </li>
   );
 };

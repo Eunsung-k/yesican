@@ -20,7 +20,7 @@ export const today = () => {
   };
 
 //주간 범위를 구하는 함수
-export const weekRange = () => {
+export const weekRange = (selectedDate) => {
   const currentDate = new Date(selectedDate);
   const dayOfWeek = currentDate.getDay();
   const weekStart = new Date(currentDate);

@@ -44,7 +44,7 @@
   /* position: absolute; 절대적 이동 */
   position: absolute;
   right: 25px;
-  top:203px;
+  top:1500px;
 }
 
 input[type="text"].itemInput {

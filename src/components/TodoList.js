@@ -670,19 +670,19 @@ const TodoList = () => {
               ))}
         </ul>
           </div>
-          <div class="flex">
-            <div class="grow">
+          <div class="flex items-center">
+            <div class=" mr-10 grow">
               {/* 퍼스널 투두 입력창 */}
                <input
                type="text"
-               className="ml-10 my-0 shadow-lg w-10/12 p-1 mb-4 border border-gray-300 rounded"
+               className="mx-10 my-4 shadow-lg w-10/12 p-1 mb-4 border border-gray-300 rounded"
                value={input}
                onChange={(e) => setInput(e.target.value)}
               placeholder="personal todo 입력" // 검색창에 연한 회색 글씨 띄우기
               />
              </div>
               <div class=" mr-10 gron-0">
-                주
+                주&nbsp;
                 <button onClick={toggleGoalOptions}>
                 {inputGoal ? inputGoal : "n"}회
                 </button>
@@ -696,17 +696,14 @@ const TodoList = () => {
                   </ul>
                  )}
                </div>
-               <div class="flex justify -end">
-               <button
-                className="mr-10 w-40 justify-self-end p-1 mb-4 bg-pink-500 text-white border border-pink-500 rounded hover:bg-white hover:text-pink-500"
-                onClick={() => {
-                addTodo();
-          }}
-        >
-          Add Todo
-        </button>
+               <div>
+                <button class="bg-gray-900 text-white font-bold mx-4 my-4 py-2 px-4 rounded-full"
+                onClick={() => {addTodo();}}
+                >
+                 add todo
+                </button>
                </div>
-            </div>
+              </div>
           
 
         </div>

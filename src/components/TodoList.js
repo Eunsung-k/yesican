@@ -200,7 +200,7 @@ const TodoList = () => {
       text: input,
       completed: false,
       date: selectedDate,
-      time: selectedTime,
+      // time: selectedTime,
       datetime: new Date(),
       isPublic: false,
       createdDate: new Date(), // 리스트를 추가한 날짜 정보를 추가합니다.
@@ -213,7 +213,7 @@ const TodoList = () => {
       text: input, 
       completed: false, 
       date: selectedDate, 
-      time: selectedTime,
+      // time: selectedTime,
       createdDate: new Date(), // 리스트를 추가한 날짜 정보를 추가합니다.
       weeklyGoal: inputGoal, // 주간 목표 초기값 설정
       weeklyCompleted: 0, // 주간 완료 횟수
@@ -222,7 +222,7 @@ const TodoList = () => {
     setTodos([...todos, newTodo]);
     setInput("");
     setSelectedDate(null);
-    setSelectedTime(null);
+    // setSelectedTime(null);
     setInputGoal(null);//todo 입력창에서 설정한 주간 목표 횟수
   };
 
@@ -243,16 +243,16 @@ const TodoList = () => {
       text: publicInput,
       completed: false,
       date: selectedDate,
-      time: selectedTime,
+      // time: selectedTime,
       datetime: new Date(),
       isPublic: true,
       administratorId: data?.user?.id, // Set the administrator ID
   });
-    const newPublicTodo = {id: docRef.id, text: publicInput, completed: false, date: selectedDate, time: selectedTime};
+    const newPublicTodo = {id: docRef.id, text: publicInput, completed: false, date: selectedDate};
     setPublicTodos([...publicTodos, newPublicTodo]);
     setPublicInput("");
     setSelectedDate(null);
-    setSelectedTime(null);
+    // setSelectedTime(null);
     setIsAdmin(true);
     console.log('here');
     console.log(docRef.id);

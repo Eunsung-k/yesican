@@ -30,6 +30,8 @@ export const weekRange = (selectedDate) => {
 
   return { weekStart, weekEnd };
 };
+//{weekStart.toLocaleDateString()} - {weekEnd.toLocaleDateString()}
+//주간범위를 표시하는 기능
   
   // 자정 시간을 구하는 함수
 export const getMidnight = () => {

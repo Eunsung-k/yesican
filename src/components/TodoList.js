@@ -560,23 +560,29 @@ const TodoList = () => {
           onChange={(e) => setSearchInput(e.target.value)}
           placeholder="public todo 검색" // 검색창에 연한 회색 글씨 띄우기
           />
-          <ul className="mx-5 my-5">
-            {searchResults.map((result) => (
-              <li key={result.id}>
-                <span>
-                  {result.text}
-                  </span>
-                {!result.joined && (
-               <button
-                 onClick={() => {
-                 joinPublicTodo(result.id);}}
-                 >
-                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Join
-                </button>
-                )}
-              </li>
-             ))}
-          </ul>
+          <div className="">
+            <ul className="mx-5 my-5 ">
+             {searchResults.map((result) => (
+               <li key={result.id}>
+                 <div>
+                  <span>{result.text}</span>
+                 </div>
+                 <div>
+                    {!result.joined && (
+                    <button
+                      onClick={() => {
+                      joinPublicTodo(result.id);}}
+                       >
+                      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Join
+                   </button>
+                   )}
+                 </div>
+
+
+                </li>
+              ))}
+           </ul>
+          </div>
 
 
         </div>
@@ -588,31 +594,60 @@ const TodoList = () => {
             <h1 className="my-5 mx-5 text-2xl text-left font-bold text-black-500">
               Public
             </h1>
-            <ul>
-              {publicTodos
-                .filter((publicTodo) => publicTodo.joinedUsers && publicTodo.joinedUsers[data?.user.id])
-                .map((publicTodo) => {
-                  const { completedCount, totalCount } = calculatePublicTodoCompletion(publicTodo);
-                 const completionPercentage = totalCount !== 0 ? Math.round((completedCount / totalCount) * 100) : 0;
-                 const displayText = `${completedCount}/${totalCount}`;
-                   return (
-                    <li key={publicTodo.id} className="flex items-center mb-2">
-                     <span className="w-1/2">{publicTodo.text} : {displayText} (완료/전체)</span>
+            <ul className="mx-10 my-10">
+             {publicTodos
+              .filter((publicTodo) => publicTodo.joinedUsers && publicTodo.joinedUsers[data?.user.id])
+              .filter((publicTodo) => !publicTodo.joinedUsers[data?.user.id].completed)
+              .map(todo => (
+                
+                <TodoItem
+                   key={todo.id}
+                   todo={todo}
+                   onToggle={() => toggleJoinedTodo(todo.id)}
+                   currentUserId={data?.user.id}
+                   onDeletePub={() => deleteMyPublicTodo(todo.id)}
+                  />
+                 ))}
+                 
+              </ul>
+              
 
-                     <div className="w-1/2 flex items-center">
-                        <div className="relative w-full h-4 bg-gray-300 rounded">
-                           <div
-                             className="absolute top-0 left-0 h-full bg-pink-500 rounded"
-                               style={{ width: `${completionPercentage}%` }}
-                           ></div>
-                          </div>
+              <ul className="my-5 mx-10">
+                {publicTodos
+                  .filter((publicTodo) => publicTodo.joinedUsers && publicTodo.joinedUsers[data?.user.id])
+                  .map((publicTodo) => {
+                    const { completedCount, totalCount } = calculatePublicTodoCompletion(publicTodo);
+                    const completionPercentage = totalCount !== 0 ? Math.round((completedCount / totalCount) * 100) : 0;
+                    const displayText = `${completedCount}/${totalCount}`;
+                    return (
+                      <li key={publicTodo.id} className="flex items-center mb-2">
+                        <span className="w-1/2">{publicTodo.text} : {displayText} (완료/전체)</span>
+
+                        <div className="w-1/2 flex items-center">    
+                          <div className="relative w-full h-4 bg-gray-300 rounded">
+                             <div className="absolute top-0 left-0 h-full bg-pink-500 rounded"
+                                style={{ width: `${completionPercentage}%` }}> 
+                               </div>
+                            </div>
                          <span className="ml-2">{completionPercentage}%</span>
                        </div>
                      </li>
-                  );
-               })}
-             </ul>
-          </div>
+                    );
+                  })}
+              </ul>
+
+              <div className="flex">
+              {/* 퍼블릭 투두 추가창 */}
+                <input 
+                type="text"
+                className="mx-10 my-5 shadow-lg w-8/12 p-1 mb-4 border border-gray-300 rounded"
+                value={publicInput}
+                onChange={(e) => setPublicInput(e.target.value)}
+                placeholder="public todo를 목록에 추가" // 검색창에 연한 회색 글씨 띄우기
+                />
+
+              </div>
+         </div>
 
 
           {/*퍼스널 투두 리스트*/}
@@ -620,7 +655,59 @@ const TodoList = () => {
            <h1 className="my-5 mx-5 text-2xl text-left font-bold text-black-500">
               Personal
             </h1>
+            {/* 퍼스널 투두 리스트 목록 */}
+        <ul className="mx-10 my-10">
+          {todos
+              .filter((todo) => !todo.completed)
+              .map((todo) => (
+                <TodoItem
+                  key={todo.id}
+                  todo={todo}
+                  onToggle={() => toggleTodo(todo.id)}
+                  onDelete={() => deleteTodo(todo.id)}
+                  
+                />
+              ))}
+        </ul>
           </div>
+          <div class="flex">
+            <div class="grow">
+              {/* 퍼스널 투두 입력창 */}
+               <input
+               type="text"
+               className="ml-10 my-0 shadow-lg w-10/12 p-1 mb-4 border border-gray-300 rounded"
+               value={input}
+               onChange={(e) => setInput(e.target.value)}
+              placeholder="personal todo 입력" // 검색창에 연한 회색 글씨 띄우기
+              />
+             </div>
+              <div class=" mr-10 gron-0">
+                주
+                <button onClick={toggleGoalOptions}>
+                {inputGoal ? inputGoal : "n"}회
+                </button>
+                {isGoalOptionsOpen && (
+                   <ul>
+                     {[1, 2, 3, 4, 5, 6, 7].map((num) => (
+                      <li key={num} onClick={() => handleGoalSelect(num)}>
+                      {num}
+                     </li>
+                     ))}
+                  </ul>
+                 )}
+               </div>
+               <div class="flex justify -end">
+               <button
+                className="mr-10 w-40 justify-self-end p-1 mb-4 bg-pink-500 text-white border border-pink-500 rounded hover:bg-white hover:text-pink-500"
+                onClick={() => {
+                addTodo();
+          }}
+        >
+          Add Todo
+        </button>
+               </div>
+            </div>
+          
 
         </div>
 

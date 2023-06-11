@@ -33,10 +33,14 @@ const handleLogout = async () => {
 // TodoList 컴포넌트를 정의합니다.
 const TodoList = () => {
   const [myDate, setMyDate] = useState(new Date()); //날짜별로 투두리스트 저장 테스트
-  const [weeklyGoal, setWeeklyGoal] = useState(null);//weeklyGoal 테스트
-  const [inputGoal, setInputGoal] = useState(null); //weeklygaol 테스트
+  const [weeklyGoal, setWeeklyGoal] = useState(null);//weeklyGoal
+  const [inputGoal, setInputGoal] = useState(null); //weeklygaol
   const [weeklyCompleted, setWeeklyCompleted] = useState(0);
   const [isGoalOptionsOpen, setIsGoalOptionsOpen] = useState(false); //weeklyGoal 테스트
+  const [isGoalOptionsOpenPub, setIsGoalOptionsOpenPub] = useState(false); //weeklyGoal 테스트
+  const [weeklyGoalPub, setWeeklyGoalPub] = useState(null);//weeklyGoal public 테스트
+  const [inputGoalPub, setInputGoalPub] = useState(null); //weeklygaol public  테스트
+
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().substr(0, 10)); //
   const { weekStart, weekEnd } = weekRange(selectedDate);//주간 범위
 
@@ -199,7 +203,6 @@ const TodoList = () => {
     setTodos([...todos, newTodo]);
     setInput("");
     setSelectedDate(null);
-    //setSelectedTime(null);
     setInputGoal(null);//todo 입력창에서 설정한 주간 목표 횟수
   };
 
@@ -214,28 +217,51 @@ const TodoList = () => {
       setIsGoalOptionsOpen(!isGoalOptionsOpen);
     };
 
+
+  // add public todo 함수는 입력값을 이용하여 새로운 할 일을 목록에 추가하는 함수입니다.
   const addPublicTodo = async() => {
     if (publicInput.trim() === "") return;
     const docRef = await addDoc(publicTodoCollection, {
       text: publicInput,
       completed: false,
       date: selectedDate,
-      time: selectedTime,
       datetime: new Date(),
       isPublic: true,
       administratorId: data?.user?.id, // Set the administrator ID
+      createdDate: new Date(), //리스트를 추가한 날짜 정보를 추가합니다.
+      weeklyGoal: inputGoalPub, //주간 목표 초기값 설정
+      weeklycompledted: 0, //주간 완료 횟수
   });
-    const newPublicTodo = {id: docRef.id, text: publicInput, completed: false, date: selectedDate, time: selectedTime};
+    const newPublicTodo = {
+      id: docRef.id, 
+      text: publicInput, 
+      completed: false, 
+      date: selectedDate,
+      createdDate: new Date(), //리스트를 추가한 날짜 정보를 추가합니다.
+      weeklyGoal: inputGoalPub, //주간 목표 초기값 설정
+      weeklycompledted: 0, //주간 완료 횟수
+      };
     setPublicTodos([...publicTodos, newPublicTodo]);
     setPublicInput("");
     setSelectedDate(null);
-    setSelectedTime(null);
     setIsAdmin(true);
+    setInputGoalPub(null);
     console.log('here');
     console.log(docRef.id);
     console.log('end');
     return docRef.id;
   };
+
+      // pubic weeklygoal 입력
+      const handleGoalSelectPub = (weeklyGoalPub) => {
+        setInputGoalPub(weeklyGoalPub);
+        setIsGoalOptionsOpenPub(false);
+      };
+  
+     // public weeklygoal 옵션 토글
+      const toggleGoalOptionsPub = () => {
+        setIsGoalOptionsOpenPub(!isGoalOptionsOpenPub);
+      };
 
 /* 
   const toggleTodo = async (id, isPublic) => {
@@ -609,7 +635,7 @@ const TodoList = () => {
                   />
                  ))}
                  
-              </ul>
+            </ul>
               
 
               <ul className="my-5 mx-10">
@@ -636,18 +662,41 @@ const TodoList = () => {
                   })}
               </ul>
 
-              <div className="flex">
-              {/* 퍼블릭 투두 추가창 */}
+            <div className="flex items-center">
+              <div class="mr=10 grow">
+                {/* 퍼블릭 투두 추가창 */}
                 <input 
                 type="text"
-                className="mx-10 my-5 shadow-lg w-8/12 p-1 mb-4 border border-gray-300 rounded"
+                className="mx-10 my-4 shadow-lg w-10/12 p-1 mb-4 border border-gray-300 rounded"
                 value={publicInput}
                 onChange={(e) => setPublicInput(e.target.value)}
                 placeholder="public todo를 목록에 추가" // 검색창에 연한 회색 글씨 띄우기
                 />
-
               </div>
-         </div>
+              <div class="mr-10 grow-0">
+               주&nbsp;
+                <button onClick={toggleGoalOptionsPub}>
+                  {inputGoalPub ? inputGoalPub : "n"}회
+                </button>
+                  {isGoalOptionsOpenPub && (
+                    <ul>
+                     {[1, 2, 3, 4, 5, 6, 7].map((num) => (
+                      <li key={num} onClick={() => handleGoalSelectPub(num)}>
+                      {num}
+                     </li>
+                     ))}
+                  </ul>
+                 )}
+              </div>
+              <div>
+                <button class="bg-gray-900 text-white font-bold mx-4 my-4 py-2 px-4 rounded-full"
+                  onClick={() => {addPublicTodo();}}
+                  >
+                    add todo
+                </button>
+              </div>
+            </div>
+        </div>
 
 
           {/*퍼스널 투두 리스트*/}
@@ -681,7 +730,7 @@ const TodoList = () => {
               placeholder="personal todo 입력" // 검색창에 연한 회색 글씨 띄우기
               />
              </div>
-              <div class=" mr-10 gron-0">
+              <div class=" mr-10 grow-0">
                 주&nbsp;
                 <button onClick={toggleGoalOptions}>
                 {inputGoal ? inputGoal : "n"}회
@@ -704,12 +753,14 @@ const TodoList = () => {
                 </button>
                </div>
               </div>
-          
+            </div>
+          </div>
+       </div>
 
-        </div>
 
-      </div>
-    </div>
+
+
+
 
 
 

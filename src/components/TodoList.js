@@ -37,37 +37,16 @@ const TodoList = () => {
   const [inputGoal, setInputGoal] = useState(null); //weeklygaol 테스트
   const [weeklyCompleted, setWeeklyCompleted] = useState(0);
   const [isGoalOptionsOpen, setIsGoalOptionsOpen] = useState(false); //weeklyGoal 테스트
+  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().substr(0, 10)); //
+  const { weekStart, weekEnd } = weekRange(selectedDate);//주간 범위
 
   const [todos, setTodos] = useState([]);
   const [publicTodos, setPublicTodos] = useState([]);
   const [input, setInput] = useState("");
   const [publicInput, setPublicInput] = useState(""); // public 카테고리 인풋 추가. 
-  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().substr(0, 10)); //
-  //const [selectedTime, setSelectedTime] = useState(null);
+
   const [isAdmin, setIsAdmin] = useState(false); // Add isAdmin state
 
-  /*
-  const goBackward = () => {
-    const prevDate = new Date(myDate);
-    prevDate.setDate(prevDate.getDate() - 1);
-    setMyDate(prevDate);
-  };
-
-  const goForward = () => {
-    const nextDate = new Date(myDate);
-    nextDate.setDate(nextDate.getDate() + 1);
-    setMyDate(nextDate);
-  };
-
-  const filteredTodos = todos.filter((todo) => {
-    const todoDate = new Date(todo.createdDate);
-    return (
-      todoDate.getFullYear() === myDate.getFullYear() &&
-      todoDate.getMonth() === myDate.getMonth() &&
-      todoDate.getDate() === myDate.getDate()
-    );
-  });
-*/
 
 //Personal Todo 달성도 
   const personalCompletionPercentage = () => {
@@ -200,7 +179,6 @@ const TodoList = () => {
       text: input,
       completed: false,
       date: selectedDate,
-      time: selectedTime,
       datetime: new Date(),
       isPublic: false,
       createdDate: new Date(), // 리스트를 추가한 날짜 정보를 추가합니다.
@@ -213,7 +191,6 @@ const TodoList = () => {
       text: input, 
       completed: false, 
       date: selectedDate, 
-      time: selectedTime,
       createdDate: new Date(), // 리스트를 추가한 날짜 정보를 추가합니다.
       weeklyGoal: inputGoal, // 주간 목표 초기값 설정
       weeklyCompleted: 0, // 주간 완료 횟수
@@ -222,7 +199,7 @@ const TodoList = () => {
     setTodos([...todos, newTodo]);
     setInput("");
     setSelectedDate(null);
-    setSelectedTime(null);
+    //setSelectedTime(null);
     setInputGoal(null);//todo 입력창에서 설정한 주간 목표 횟수
   };
 
@@ -541,13 +518,116 @@ const TodoList = () => {
    
     
   return (
-    <div className={styles.container}>
+    <div className="container py-4 mx-auto px-4">
       {/* 로그아웃 버튼 */}
       <div className="w-1/2 pr-4">
         <button className={styles.logoutButton} onClick={() => signOut()}>
           Logout
         </button>
       </div>
+
+      {/*타이틀*/}
+      <div className="container mt-20">
+        <div class="my-3 border-solid border-2 border-black ...">
+          <h1 className="text-3xl text-left pt-20 pb-5 px-5  font-bold text-black-500 bg-white">
+           YES, "{data?.user?.name}" CAN DO!
+          </h1>
+        </div>
+      </div>
+
+    {/* 날짜 */}
+      <div className="container mx auto ">
+        <div class="border-solid border-2 border-black ...">
+          <h1 className="text-xl text-center py-5 font-bold text-black-500 bg-white">
+            {today()}
+         </h1>
+        </div>
+      </div>
+    
+    {/*Public todo, personal todo*/}
+    <div className="container mx auto">
+      <div class="flex flex-row">
+        <div class="mr-1.5 my-3 basis-1/2 border-solid border-2 border-black ... bg-white">
+          {/*퍼블릭투두*/}
+          <h1 className="my-5 mx-5 text-2xl text-left font-bold text-black-500">
+            Public Todo
+          </h1>
+          {/*퍼블릭 투두 검색*/}
+          <input
+          type="text"
+          className="mx-5 p-1 mb-4 border border-black-300 rounded"
+          value={searchInput}
+          onChange={(e) => setSearchInput(e.target.value)}
+          placeholder="public todo 검색" // 검색창에 연한 회색 글씨 띄우기
+          />
+          <ul className="mx-5 my-5">
+            {searchResults.map((result) => (
+              <li key={result.id}>
+                <span>
+                  {result.text}
+                  </span>
+                {!result.joined && (
+               <button
+                 onClick={() => {
+                 joinPublicTodo(result.id);}}
+                 >
+                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Join
+                </button>
+                )}
+              </li>
+             ))}
+          </ul>
+
+
+        </div>
+
+        {/*퍼블릭 투두 리스트, 퍼스널 투두 리스트*/}
+        <div class="ml-1.5 my-3 basis-1/2 border-solid border-2 border-black ... bg-white">
+          {/*퍼블릭 투두 리스트*/}
+          <div>
+            <h1 className="my-5 mx-5 text-2xl text-left font-bold text-black-500">
+              Public
+            </h1>
+            <ul>
+              {publicTodos
+                .filter((publicTodo) => publicTodo.joinedUsers && publicTodo.joinedUsers[data?.user.id])
+                .map((publicTodo) => {
+                  const { completedCount, totalCount } = calculatePublicTodoCompletion(publicTodo);
+                 const completionPercentage = totalCount !== 0 ? Math.round((completedCount / totalCount) * 100) : 0;
+                 const displayText = `${completedCount}/${totalCount}`;
+                   return (
+                    <li key={publicTodo.id} className="flex items-center mb-2">
+                     <span className="w-1/2">{publicTodo.text} : {displayText} (완료/전체)</span>
+
+                     <div className="w-1/2 flex items-center">
+                        <div className="relative w-full h-4 bg-gray-300 rounded">
+                           <div
+                             className="absolute top-0 left-0 h-full bg-pink-500 rounded"
+                               style={{ width: `${completionPercentage}%` }}
+                           ></div>
+                          </div>
+                         <span className="ml-2">{completionPercentage}%</span>
+                       </div>
+                     </li>
+                  );
+               })}
+             </ul>
+          </div>
+
+
+          {/*퍼스널 투두 리스트*/}
+          <div>
+           <h1 className="my-5 mx-5 text-2xl text-left font-bold text-black-500">
+              Personal
+            </h1>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+
+
 
       {/* 타이틀 및 날짜 */}
       <h1 className="text-2xl mt-10 font-bold  text-pink-500">
@@ -588,6 +668,7 @@ const TodoList = () => {
           </ul>
         )}
       </div>
+      
 
       {/* 퍼스널 addtodo 버튼 */}
       <div className="flex justify-end">

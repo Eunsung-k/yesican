@@ -32,12 +32,10 @@ const TodoItem = ({ todo, onToggle, onDelete, currentUserId, onDeletePub, weekly
       <span> 주 {todo.weeklyGoal}회</span> 
       &nbsp;
       <span>{todo.date}</span>
-      &nbsp;
-      <span>{todo.time}</span>
       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
       {/* 삭제 버튼을 렌더링하고, 클릭 시 onDelete 함수를 호출하여 해당 할 일을 삭제합니다. */}
-      <button onClick={onDelete}>Delete</button>
-      <button onClick={onDeletePub}>DeletePub</button>
+      {onDelete && <button onClick={onDelete}>Delete</button>}
+      {onDeletePub && <button onClick={onDeletePub}>DeletePub</button>}
     </li>
   );
 };

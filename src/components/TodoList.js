@@ -37,12 +37,13 @@ const TodoList = () => {
   const [inputGoal, setInputGoal] = useState(null); //weeklygaol 테스트
   const [weeklyCompleted, setWeeklyCompleted] = useState(0);
   const [isGoalOptionsOpen, setIsGoalOptionsOpen] = useState(false); //weeklyGoal 테스트
+
   const [todos, setTodos] = useState([]);
   const [publicTodos, setPublicTodos] = useState([]);
   const [input, setInput] = useState("");
   const [publicInput, setPublicInput] = useState(""); // public 카테고리 인풋 추가. 
-  const [selectedDate, setSelectedDate] = useState(new Date());
-  const [selectedTime, setSelectedTime] = useState(null);
+  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().substr(0, 10)); //
+  //const [selectedTime, setSelectedTime] = useState(null);
   const [isAdmin, setIsAdmin] = useState(false); // Add isAdmin state
 
   /*
@@ -68,6 +69,7 @@ const TodoList = () => {
   });
 */
 
+//Personal Todo 달성도 
   const personalCompletionPercentage = () => {
     const completedCount = todos.filter((todo) => todo.completed).length;
     const totalCount = todos.length;
@@ -587,19 +589,6 @@ const TodoList = () => {
         )}
       </div>
 
-      {/* 퍼스널 날짜 및 시간 선택 버튼 */}
-      <input
-        type="date"
-        className={styles.itemInput}
-        value={selectedDate}
-        onChange={(e) => setSelectedDate(e.target.value)} 
-        />
-      <input
-        type="time"
-        className={styles.itemInput}
-        value={selectedTime}
-        onChange={(e) => setSelectedTime(e.target.value)}
-      />
       {/* 퍼스널 addtodo 버튼 */}
       <div className="flex justify-end">
       <button
@@ -697,7 +686,7 @@ const TodoList = () => {
                   key={todo.id}
                   todo={todo}
                   onToggle={() => toggleJoinedTodo(todo.id)}
-                  onDelete={() => deleteTodo(todo.id)}
+                  //onDelete={() => deleteTodo(todo.id)}
                   currentUserId={data?.user.id}
                   onDeletePub={() => deleteMyPublicTodo(todo.id)}
 
@@ -718,7 +707,7 @@ const TodoList = () => {
                   key={todo.id}
                   todo={todo}
                   onToggle={() => toggleJoinedTodo(todo.id)}
-                  onDelete={() => deleteTodo(todo.id)}
+                  //onDelete={() => deleteTodo(todo.id)}
                   currentUserId={data?.user.id}
                   onDeletePub={() => deleteMyPublicTodo(todo.id)}
                 />
@@ -771,13 +760,12 @@ const TodoList = () => {
         type="date"
         className={styles.itemInput}
         value={selectedDate}
-        onChange={(e) => setSelectedDate(e.target.value)} 
+        //onChange={(e) => setSelectedDate(e.target.value)} 
         />
       <input
         type="time"
         className={styles.itemInput}
-        value={selectedTime}
-        onChange={(e) => setSelectedTime(e.target.value)}
+        //onChange={(e) => setSelectedTime(e.target.value)}
       />
 
       {/* 퍼블릭 addtodo 버튼 */}

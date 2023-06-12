@@ -8,8 +8,8 @@
 import React from "react";
 import styles from "@/styles/TodoList.module.css";
 
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"; //아이콘 불러오기
-import {faTrashCan} from "@fortawesome/free-regular-svg-icons"; //trashcan 아이콘 불러오기
+// import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"; //아이콘 불러오기
+// import {faTrashCan} from "@fortawesome/free-regular-svg-icons"; //trashcan 아이콘 불러오기
 
 
 

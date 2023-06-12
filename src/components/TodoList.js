@@ -680,12 +680,15 @@ const joinPublicTodo = async (publicTodoId) => {
                     style={{ marginLeft: '5px' }}>
                     X
                       </button>
-                    <h2 className="text-2xl text-center m-4 font-bold"style={{marginTop: "-5px" }}>▶혼자 할 일</h2>
-                    <h3 className="text-xl  m-4"style={{ margin: "0.20rem 0", marginLeft: "4rem", marginTop: "30px" }}>
-                    ● 할 일을 추가하기 전, 
+                    <h2 className="text-2xl text-center m-4 font-bold"style={{marginTop: "-5px" }}>▶ 혼자 할 일</h2>
+                    <h3 className="text-xl  m-4"style={{ margin: "0.20rem 0", marginLeft: "2rem",marginRight: "2rem" ,marginTop: "35px" }}>
+                    ● 생활 루틴, 과제, 약속 등 나의 할 일을 기록합니다. 이 필드는 나에게만 보입니다! 
                     </h3>
-                    <h3 className="text-xl  m-4"style={{ margin: "0.25rem 0", marginLeft: "4rem" }}>
-                    해당 할 일을 주 몇 회 할지 설정해봅시다!
+                    <h3 className="text-xl  m-4"style={{margin: "0.20rem 0", marginLeft: "2rem",marginRight: "2rem"}}>
+                    ● 입력창에 할 일을 입력하고 추가하기 버튼을 눌러 리스트업합니다. 할 일을 완료했다면 체크박스를 누르세요!
+                    </h3>
+                    <h3 className="text-xl  m-4"style={{margin: "0.20rem 0", marginLeft: "2rem",marginRight: "2rem"}}>
+                    ● 삭제하려면 '할 일 삭제하기' 버튼을 누릅니다.
                     </h3>
                       </div>
                       </div>
@@ -733,11 +736,11 @@ const joinPublicTodo = async (publicTodoId) => {
                     X
                       </button>
                     <h2 className="text-2xl text-center m-4 font-bold"style={{marginTop: "-5px" }}>▶ 주 몇 회 할지 설정</h2>
-                    <h3 className="text-xl  m-4"style={{ margin: "0.20rem 0", marginLeft: "4rem", marginTop: "30px" }}>
-                    ● 할 일을 추가하기 전, 
+                    <h3 className="text-xl  m-4"style={{ margin: "0.20rem 0", marginLeft: "2rem",marginRight: "2rem" ,marginTop: "60px" }}>
+                    ● 할 일을 추가하기 전 주 몇 회 할 것인지 계획해봅시다!
                     </h3>
-                    <h3 className="text-xl  m-4"style={{ margin: "0.25rem 0", marginLeft: "4rem" }}>
-                    해당 할 일을 주 몇 회 할지 설정해봅시다!
+                    <h3 className="text-xl  m-4"style={{margin: "0.20rem 0", marginLeft: "2rem",marginRight: "2rem"}}>
+                    ● 'n'을 누르고 숫자를 클릭한 후 추가하기 버튼을 누르면 됩니다.
                     </h3>
                       </div>
                       </div>
@@ -836,12 +839,12 @@ const joinPublicTodo = async (publicTodoId) => {
                     style={{ marginLeft: '5px' }}>
                     X
                       </button>
-                    <h2 className="text-2xl text-center m-4 font-bold"style={{marginTop: "-5px" }}>▶혼자 할 일 달성도</h2>
-                    <h3 className="text-xl  m-4"style={{ margin: "0.20rem 0", marginLeft: "4rem", marginTop: "30px" }}>
-                    ● 할 일을 추가하기 전, 
+                    <h2 className="text-2xl text-center m-4 font-bold"style={{marginTop: "-5px" }}>▶ 혼자 할 일 달성도</h2>
+                    <h3 className="text-xl  m-4"style={{ margin: "0.20rem 0", marginLeft: "2rem",marginRight: "2rem" ,marginTop: "60px" }}>
+                    ● 오늘 등록한 혼자 할 일들을 얼마나 달성했는지를 보여줍니다.
                     </h3>
-                    <h3 className="text-xl  m-4"style={{ margin: "0.25rem 0", marginLeft: "4rem" }}>
-                    해당 할 일을 주 몇 회 할지 설정해봅시다!
+                    <h3 className="text-xl  m-4"style={{margin: "0.20rem 0", marginLeft: "2rem",marginRight: "2rem"}}>
+                    ● 꼭 100%를 달성해봅시다!
                     </h3>
                       </div>
                       </div>
@@ -912,12 +915,15 @@ const joinPublicTodo = async (publicTodoId) => {
                     style={{ marginLeft: '5px' }}>
                     X
                       </button>
-                    <h2 className="text-2xl text-center m-4 font-bold"style={{marginTop: "-5px" }}>▶함께 할 일</h2>
-                    <h3 className="text-xl  m-4"style={{ margin: "0.20rem 0", marginLeft: "4rem", marginTop: "30px" }}>
-                    ● 할 일을 추가하기 전, 
+                    <h2 className="text-2xl text-center m-4 font-bold"style={{marginTop: "-5px" }}>▶ 함께 할 일</h2>
+                    <h3 className="text-xl  m-4"style={{ margin: "0.20rem 0", marginLeft: "2rem",marginRight: "2rem" ,marginTop: "30px" }}>
+                    ● 같은 목표를 다른 사람들과 공유합니다. 혼자 있을 때는 미루게 되는 일들, 그룹원들과 함께 해봅시다!
                     </h3>
-                    <h3 className="text-xl  m-4"style={{ margin: "0.25rem 0", marginLeft: "4rem" }}>
-                    해당 할 일을 주 몇 회 할지 설정해봅시다!
+                    <h3 className="text-xl  m-4"style={{margin: "0.20rem 0", marginLeft: "2rem",marginRight: "2rem"}}>
+                    ● 다른 함께 할 일 찾아보기에서 이미 존재하는 그룹에 들어갈 수도, 추가하기 버튼을 눌러 내가 직접 그룹을 만들 수도 있습니다. 
+                    </h3>
+                    <h3 className="text-xl  m-4"style={{margin: "0.20rem 0", marginLeft: "2rem",marginRight: "2rem"}}>
+                    ● '삭제하기'를 눌러 내가 만든 함께 할 일은 모든 사람들에게서 삭제할 수도, '할 일 삭제하기'를 눌러 내 목록에서만 삭제할 수도 있습니다.
                     </h3>
                       </div>
                       </div>
@@ -966,11 +972,11 @@ const joinPublicTodo = async (publicTodoId) => {
                     X
                       </button>
                     <h2 className="text-2xl text-center m-4 font-bold"style={{marginTop: "-5px" }}>▶ 주 몇 회 할지 설정</h2>
-                    <h3 className="text-xl  m-4"style={{ margin: "0.20rem 0", marginLeft: "4rem", marginTop: "30px" }}>
-                    ● 할 일을 추가하기 전, 
+                    <h3 className="text-xl  m-4"style={{ margin: "0.20rem 0", marginLeft: "2rem",marginRight: "2rem" ,marginTop: "60px" }}>
+                    ● 할 일을 추가하기 전 주 몇 회 할 것인지 계획해봅시다!
                     </h3>
-                    <h3 className="text-xl  m-4"style={{ margin: "0.25rem 0", marginLeft: "4rem" }}>
-                    해당 할 일을 주 몇 회 할지 설정해봅시다!
+                    <h3 className="text-xl  m-4"style={{margin: "0.20rem 0", marginLeft: "2rem",marginRight: "2rem"}}>
+                    ● 'n'을 누르고 숫자를 클릭한 후 추가하기 버튼을 누르면 됩니다.
                     </h3>
                       </div>
                       </div>
@@ -1034,12 +1040,12 @@ const joinPublicTodo = async (publicTodoId) => {
                     style={{ marginLeft: '5px' }}>
                     X
                       </button>
-                    <h2 className="text-2xl text-center m-4 font-bold"style={{marginTop: "-5px" }}>▶다른 함께 할 일 검색</h2>
-                    <h3 className="text-xl  m-4"style={{ margin: "0.20rem 0", marginLeft: "4rem", marginTop: "30px" }}>
-                    ● 할 일을 추가하기 전, 
+                    <h2 className="text-2xl text-center m-4 font-bold"style={{marginTop: "-5px" }}>▶ 다른 함께 할 일 찾아보기</h2>
+                    <h3 className="text-xl  m-4"style={{ margin: "0.20rem 0", marginLeft: "2rem",marginRight: "2rem" ,marginTop: "60px" }}>
+                    ● 클릭하여 다른 사람이 만든 함께 할 일을 검색할 수 있습니다.
                     </h3>
-                    <h3 className="text-xl  m-4"style={{ margin: "0.25rem 0", marginLeft: "4rem" }}>
-                    해당 할 일을 주 몇 회 할지 설정해봅시다!
+                    <h3 className="text-xl  m-4"style={{margin: "0.20rem 0", marginLeft: "2rem",marginRight: "2rem"}}>
+                    ● '참여하기'를 누르면 다른 함께 할 일이 내 목록에 리스트업됩니다!
                     </h3>
                       </div>
                       </div>
@@ -1125,7 +1131,7 @@ const joinPublicTodo = async (publicTodoId) => {
         </ul>
         </div>
                 {/* 퍼블릭 Todo 달성도 */}
-                <h2 className="my-4 mx-5 text-xl text-left font-bold text-black-500">함께 할 일 참여도{/* 함께할일 참여도 아이콘 */}
+                <h2 className="my-4 mx-5 text-xl text-left font-bold text-black-500">함께 할 일 달성도{/* 함께할일 참여도 아이콘 */}
              <button onClick={publiccomPopup}>
                 ❓ 
                 </button>
@@ -1153,12 +1159,12 @@ const joinPublicTodo = async (publicTodoId) => {
                     style={{ marginLeft: '5px' }}>
                     X
                       </button>
-                    <h2 className="text-2xl text-center m-4 font-bold"style={{marginTop: "-5px" }}>▶함께 할 일 참여도</h2>
-                    <h3 className="text-xl  m-4"style={{ margin: "0.20rem 0", marginLeft: "4rem", marginTop: "30px" }}>
-                    ● 할 일을 추가하기 전, 
+                    <h2 className="text-2xl text-center m-4 font-bold"style={{marginTop: "-5px" }}>▶ 함께 할 일 달성도</h2>
+                    <h3 className="text-xl  m-4"style={{ margin: "0.20rem 0", marginLeft: "2rem",marginRight: "2rem" ,marginTop: "60px" }}>
+                    ● 같은 할 일을 공유하는 사람들이 얼마나 해당 목표를 달성했는지 보여줍니다. 
                     </h3>
-                    <h3 className="text-xl  m-4"style={{ margin: "0.25rem 0", marginLeft: "4rem" }}>
-                    해당 할 일을 주 몇 회 할지 설정해봅시다!
+                    <h3 className="text-xl  m-4"style={{margin: "0.20rem 0", marginLeft: "2rem",marginRight: "2rem"}}>
+                    ● 해당 함께 할 일을 참여한 모든 사람 중 이를 달성한 사람의 비율을 보여줍니다.
                     </h3>
                       </div>
                       </div>
@@ -1175,7 +1181,7 @@ const joinPublicTodo = async (publicTodoId) => {
                     const displayText = `${completedCount}/${totalCount}`;
                     return (
                       <li key={publicTodo.id} className="flex items-center mb-2">
-                        <span className="w-1/2">{publicTodo.text} : {displayText} (완료/전체)</span>
+                        <span className="w-1/2">{publicTodo.text} : {displayText} (달성/전체)</span>
                         <div className="w-1/2 flex items-center">    
                           <div className="relative w-full h-4 bg-gray-300 rounded">
                              <div className="absolute top-0 left-0 h-full bg-pink-500 rounded"

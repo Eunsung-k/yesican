@@ -613,7 +613,7 @@ const joinPublicTodo = async (publicTodoId) => {
           <div class="mr-1.5 my-3 basis-1/2 border-solid border-2 border-black ... bg-white">
             {/*퍼스널투두*/}
             <h1 className="my-5 mx-5 text-2xl text-left font-bold text-black-500">
-              Personal Todo
+              혼자 할 일
             </h1>
             
             <div class="flex items-center">
@@ -624,7 +624,7 @@ const joinPublicTodo = async (publicTodoId) => {
                 className="mx-10 my-4 shadow-lg w-10/12 p-1 mb-4 border border-gray-300 rounded"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                placeholder="personal todo 입력" // 검색창에 연한 회색 글씨 띄우기
+                placeholder="혼자 할 일 입력창 :" // 검색창에 연한 회색 글씨 띄우기
                 />
               </div>
                 <div class=" mr-10 grow-0">
@@ -646,7 +646,7 @@ const joinPublicTodo = async (publicTodoId) => {
                   <button class="bg-gray-900 text-white font-bold mx-4 my-4 py-2 px-4 rounded-full"
                   onClick={() => {addTodo();}}
                   >
-                  add todo
+                  추가하기
                   </button>
                 </div>
                 </div>
@@ -691,7 +691,7 @@ const joinPublicTodo = async (publicTodoId) => {
                 </div>
                 {/* 퍼스널 Todo 달성도 */}
                 <div className="w-3/3"></div>
-                <h2 className="my-4 mx-5 text-xl text-left font-bold text-black-500">Personal Todo 달성도</h2>
+                <h2 className="my-4 mx-5 text-xl text-left font-bold text-black-500">혼자 할 일 달성도</h2>
                 <div className="my-5 mx-10">
                   <svg viewBox="0 0 800 50">
 
@@ -727,7 +727,7 @@ const joinPublicTodo = async (publicTodoId) => {
               <div class="mr-1.5 my-3 basis-1/2 border-solid border-2 border-black ... bg-white">
             {/*퍼블릭투두*/}
             <h1 className="my-5 mx-5 text-2xl text-left font-bold text-black-500">
-              Public Todo
+              함께 할 일
             </h1>
             
             <div className="flex items-center">
@@ -738,7 +738,7 @@ const joinPublicTodo = async (publicTodoId) => {
                 className="mx-10 my-4 shadow-lg w-10/12 p-1 mb-4 border border-gray-300 rounded"
                 value={publicInput}
                 onChange={(e) => setPublicInput(e.target.value)}
-                placeholder="public todo를 목록에 추가" // 검색창에 연한 회색 글씨 띄우기
+                placeholder="함께 할 일을 다른 함께 할 일 목록에 추가 : " // 검색창에 연한 회색 글씨 띄우기
                 />
               </div>
           
@@ -761,7 +761,7 @@ const joinPublicTodo = async (publicTodoId) => {
                 <button class="bg-gray-900 text-white font-bold mx-4 my-4 py-2 px-4 rounded-full"
                   onClick={() => {addPublicTodo();}}
                   >
-                    add todo
+                    추가하기
                 </button>
               </div>
             </div>
@@ -785,7 +785,7 @@ const joinPublicTodo = async (publicTodoId) => {
               className="shadow-lg w-full p-1 mb-4 border border-gray-300 rounded"
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
-              placeholder="public todo 검색"
+              placeholder="함께 할 일 검색 :"
             />
             {/* 퍼블릭 검색 결과 목록 */}
             <div style={{ height: "400px", overflowY: "scroll" }}>
@@ -848,7 +848,7 @@ const joinPublicTodo = async (publicTodoId) => {
         </ul>
         </div>
                 {/* 퍼블릭 Todo 달성도 */}
-                <h2 className="my-4 mx-5 text-xl text-left font-bold text-black-500">Personal Todo 달성도</h2>
+                <h2 className="my-4 mx-5 text-xl text-left font-bold text-black-500">함께 할 일 참여도</h2>
                 <div>
                   <ul className="my-5 mx-10">
                 {publicTodos

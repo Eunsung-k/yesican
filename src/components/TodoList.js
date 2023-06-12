@@ -765,6 +765,8 @@ const TodoList = () => {
                    todo={todo}
                    onToggle={() => toggleJoinedTodo(todo.id)}
                    currentUserId={data?.user.id}
+                   administratorId={todo.administratorId}
+                   onDelete={() => deleteTodo(todo.id)}
                    onDeletePub={() => deleteMyPublicTodo(todo.id)}
                   />
                  ))}   
@@ -779,7 +781,8 @@ const TodoList = () => {
                   key={todo.id}
                   todo={todo}
                   onToggle={() => toggleJoinedTodo(todo.id)}
-                  // onDelete={() => deleteTodo(todo.id)}
+                  onDelete={() => deleteTodo(todo.id)}
+                  administratorId={todo.administratorId}
                   currentUserId={data?.user.id}
                   onDeletePub={() => deleteMyPublicTodo(todo.id)}
                 />

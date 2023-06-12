@@ -52,6 +52,13 @@ const TodoList = () => {
   const [isAdmin, setIsAdmin] = useState(false); // Add isAdmin state
 
   const [isSearchPopupOpen, setIsSearchPopupOpen] = useState(false); // 퍼블릭 검색 팝업 상태 변수
+  const [weekPopupOpen, setweekPopupOpen] = useState(false); // 주n회 팝업 상태 변수
+  const [personalPopupOpen,setpersonalPopupOpen] = useState(false); // 혼자 할 일 팝업 상태 변수
+  const [personalcomPopupOpen,setpersonalcomPopupOpen] = useState(false); // 혼자 할 일 달성도 팝업 상태 변수
+  const [publicPopupOpen,setpublicPopupOpen] = useState(false); // 함께 할 일 팝업  상태 변수
+  const [publiccomPopupOpen,setpubliccomPopupOpen] = useState(false); // 함께 할 일 참여도 팝업 상태 변수
+  const [otherpublicPopupOpen,setotherpublicPopupOpen] = useState(false); // 다른 함께 할 일 팝업 상태 변수
+
 
 
 //Personal Todo 달성도 
@@ -102,9 +109,40 @@ const TodoList = () => {
   };
 
   //팝업
-  const toggleSearchPopup = () => {
-    setIsSearchPopupOpen(!isSearchPopupOpen);
-  };
+ // 다른 함께 할 일 찾아보기 팝업
+ const toggleSearchPopup = () => {
+  setIsSearchPopupOpen(!isSearchPopupOpen);
+};
+
+ // 주 n회 팝업
+ const weekPopup = () => {
+  setweekPopupOpen(!weekPopupOpen);
+};
+
+// 혼자 할 일 팝업
+const personalPopup = () => {
+  setpersonalPopupOpen(!personalPopupOpen);
+};
+
+// 혼자 할 일 달성도 팝업
+const personalcomPopup = () => {
+  setpersonalcomPopupOpen(!personalcomPopupOpen);
+};
+
+// 함께 할 일 팝업
+const publicPopup = () => {
+  setpublicPopupOpen(!publicPopupOpen);
+};
+
+// 함께 할 일 참여도 팝업
+const publiccomPopup = () => {
+  setpubliccomPopupOpen(!publiccomPopupOpen);
+};
+
+ // 다른 함께 할 일 팝업
+ const otherpublicPopup = () => {
+  setotherpublicPopupOpen(!otherpublicPopupOpen);
+};
 
   //검색
   const [searchInput, setSearchInput] = useState("");
@@ -614,7 +652,45 @@ const joinPublicTodo = async (publicTodoId) => {
             {/*퍼스널투두*/}
             <h1 className="my-5 mx-5 text-2xl text-left font-bold text-black-500">
               혼자 할 일
-            </h1>
+            {/* 혼자할일 아이콘 */}
+            <button onClick={personalPopup}>
+                ❓ 
+                </button>
+                </h1>
+          {/* 혼자 할일 팝업 */}
+          {personalPopupOpen && (
+                  <div className="absolute top-0 left-0 z-10 flex items-center justify-center w-full h-full bg-gray-900 bg-opacity-50">
+                    <div className="flex justify-between mb-4">
+                      <div
+                    className="box"
+                    style={{
+                      position: "absolute",
+                      width: 550,
+                      height: 350,
+                      border: "2px solid #000",
+                      borderRadius: "15px",
+                      boxSizing: "border-box",
+                      transform: "translate(-50%,-50%)",
+                      backgroundColor: "#FFFFFF",
+                      boxShadow: "0px 2px 6px rgba(0, 0, 0, 0.6)",
+                      // padding: "10px",
+                    }}
+                  >
+                    <button onClick={personalPopup}
+                    style={{ marginLeft: '5px' }}>
+                    X
+                      </button>
+                    <h2 className="text-2xl text-center m-4 font-bold"style={{marginTop: "-5px" }}>▶혼자 할 일</h2>
+                    <h3 className="text-xl  m-4"style={{ margin: "0.20rem 0", marginLeft: "4rem", marginTop: "30px" }}>
+                    ● 할 일을 추가하기 전, 
+                    </h3>
+                    <h3 className="text-xl  m-4"style={{ margin: "0.25rem 0", marginLeft: "4rem" }}>
+                    해당 할 일을 주 몇 회 할지 설정해봅시다!
+                    </h3>
+                      </div>
+                      </div>
+                  </div>
+                )}
             
             <div class="flex items-center">
               <div class=" mr-10 grow">
@@ -627,6 +703,47 @@ const joinPublicTodo = async (publicTodoId) => {
                 placeholder="혼자 할 일 입력창 :" // 검색창에 연한 회색 글씨 띄우기
                 />
               </div>
+               {/* 주n회 검색 아이콘 */}
+            <div className="flex items-center ">
+                <button onClick={weekPopup} className="text-sm text-gray-500 mx-auto block ">
+                ❓ 
+                </button>
+              </div>
+                        {/* 주n회 검색 팝업 */}
+                {weekPopupOpen && (
+                  <div className="absolute top-0 left-0 z-10 flex items-center justify-center w-full h-full bg-gray-900 bg-opacity-50">
+                    <div className="flex justify-between mb-4">
+                      <div
+                    className="box"
+                    style={{
+                      position: "absolute",
+                      width: 550,
+                      height: 350,
+                      border: "2px solid #000",
+                      borderRadius: "15px",
+                      boxSizing: "border-box",
+                      transform: "translate(-50%,-50%)",
+                      backgroundColor: "#FFFFFF",
+                      boxShadow: "0px 2px 6px rgba(0, 0, 0, 0.6)",
+                      // padding: "10px",
+                    }}
+                  >
+                    <button onClick={weekPopup}
+                    style={{ marginLeft: '5px' }}>
+                    X
+                      </button>
+                    <h2 className="text-2xl text-center m-4 font-bold"style={{marginTop: "-5px" }}>▶ 주 몇 회 할지 설정</h2>
+                    <h3 className="text-xl  m-4"style={{ margin: "0.20rem 0", marginLeft: "4rem", marginTop: "30px" }}>
+                    ● 할 일을 추가하기 전, 
+                    </h3>
+                    <h3 className="text-xl  m-4"style={{ margin: "0.25rem 0", marginLeft: "4rem" }}>
+                    해당 할 일을 주 몇 회 할지 설정해봅시다!
+                    </h3>
+                      </div>
+                      </div>
+                  </div>
+                )}{/* 여기*/}
+
                 <div class=" mr-10 grow-0">
                   주&nbsp;
                   <button onClick={toggleGoalOptions}>
@@ -691,7 +808,46 @@ const joinPublicTodo = async (publicTodoId) => {
                 </div>
                 {/* 퍼스널 Todo 달성도 */}
                 <div className="w-3/3"></div>
-                <h2 className="my-4 mx-5 text-xl text-left font-bold text-black-500">혼자 할 일 달성도</h2>
+                <h2 className="my-4 mx-5 text-xl text-left font-bold text-black-500">혼자 할 일 달성도 {/* 혼자할일 아이콘 */}
+                <button onClick={personalcomPopup}>
+                ❓ 
+                </button>
+                </h2>
+          {/* 혼자 할일 달성도 팝업 */}
+          {personalcomPopupOpen && (
+                  <div className="absolute top-0 left-0 z-10 flex items-center justify-center w-full h-full bg-gray-900 bg-opacity-50">
+                    <div className="flex justify-between mb-4">
+                      <div
+                    className="box"
+                    style={{
+                      position: "absolute",
+                      width: 550,
+                      height: 350,
+                      border: "2px solid #000",
+                      borderRadius: "15px",
+                      boxSizing: "border-box",
+                      transform: "translate(-50%,-50%)",
+                      backgroundColor: "#FFFFFF",
+                      boxShadow: "0px 2px 6px rgba(0, 0, 0, 0.6)",
+                      // padding: "10px",
+                    }}
+                  >
+                    <button onClick={personalcomPopup}
+                    style={{ marginLeft: '5px' }}>
+                    X
+                      </button>
+                    <h2 className="text-2xl text-center m-4 font-bold"style={{marginTop: "-5px" }}>▶혼자 할 일 달성도</h2>
+                    <h3 className="text-xl  m-4"style={{ margin: "0.20rem 0", marginLeft: "4rem", marginTop: "30px" }}>
+                    ● 할 일을 추가하기 전, 
+                    </h3>
+                    <h3 className="text-xl  m-4"style={{ margin: "0.25rem 0", marginLeft: "4rem" }}>
+                    해당 할 일을 주 몇 회 할지 설정해봅시다!
+                    </h3>
+                      </div>
+                      </div>
+                  </div>
+                )}
+
                 <div className="my-5 mx-10">
                   <svg viewBox="0 0 800 50">
 
@@ -728,7 +884,46 @@ const joinPublicTodo = async (publicTodoId) => {
             {/*퍼블릭투두*/}
             <h1 className="my-5 mx-5 text-2xl text-left font-bold text-black-500">
               함께 할 일
-            </h1>
+            {/* 함께할일 아이콘 */}
+            <button onClick={publicPopup}>
+                ❓ 
+                </button>
+                </h1>
+          {/* 함께 할일 팝업 */}
+          {publicPopupOpen && (
+                  <div className="absolute top-0 left-0 z-10 flex items-center justify-center w-full h-full bg-gray-900 bg-opacity-50">
+                    <div className="flex justify-between mb-4">
+                      <div
+                    className="box"
+                    style={{
+                      position: "absolute",
+                      width: 550,
+                      height: 350,
+                      border: "2px solid #000",
+                      borderRadius: "15px",
+                      boxSizing: "border-box",
+                      transform: "translate(-50%,-50%)",
+                      backgroundColor: "#FFFFFF",
+                      boxShadow: "0px 2px 6px rgba(0, 0, 0, 0.6)",
+                      // padding: "10px",
+                    }}
+                  >
+                    <button onClick={publicPopup}
+                    style={{ marginLeft: '5px' }}>
+                    X
+                      </button>
+                    <h2 className="text-2xl text-center m-4 font-bold"style={{marginTop: "-5px" }}>▶함께 할 일</h2>
+                    <h3 className="text-xl  m-4"style={{ margin: "0.20rem 0", marginLeft: "4rem", marginTop: "30px" }}>
+                    ● 할 일을 추가하기 전, 
+                    </h3>
+                    <h3 className="text-xl  m-4"style={{ margin: "0.25rem 0", marginLeft: "4rem" }}>
+                    해당 할 일을 주 몇 회 할지 설정해봅시다!
+                    </h3>
+                      </div>
+                      </div>
+                  </div>
+                )}
+
             
             <div className="flex items-center">
               <div class="mr=10 grow">
@@ -741,7 +936,47 @@ const joinPublicTodo = async (publicTodoId) => {
                 placeholder="함께 할 일을 다른 함께 할 일 목록에 추가 : " // 검색창에 연한 회색 글씨 띄우기
                 />
               </div>
-          
+           {/* 주n회 검색 아이콘 */}
+           <div className="flex items-center ">
+                <button onClick={weekPopup} className="text-sm text-gray-500 mx-auto block">
+                ❓ 
+                </button>
+              </div>
+          {/* 주n회 검색 팝업 */}
+          {weekPopupOpen && (
+                  <div className="absolute top-0 left-0 z-10 flex items-center justify-center w-full h-full bg-gray-900 bg-opacity-50">
+                    <div className="flex justify-between mb-4">
+                      <div
+                    className="box"
+                    style={{
+                      position: "absolute",
+                      width: 550,
+                      height: 350,
+                      border: "2px solid #000",
+                      borderRadius: "15px",
+                      boxSizing: "border-box",
+                      transform: "translate(-50%,-50%)",
+                      backgroundColor: "#FFFFFF",
+                      boxShadow: "0px 2px 6px rgba(0, 0, 0, 0.6)",
+                      // padding: "10px",
+                    }}
+                  >
+                    <button onClick={weekPopup}
+                    style={{ marginLeft: '5px' }}>
+                    X
+                      </button>
+                    <h2 className="text-2xl text-center m-4 font-bold"style={{marginTop: "-5px" }}>▶ 주 몇 회 할지 설정</h2>
+                    <h3 className="text-xl  m-4"style={{ margin: "0.20rem 0", marginLeft: "4rem", marginTop: "30px" }}>
+                    ● 할 일을 추가하기 전, 
+                    </h3>
+                    <h3 className="text-xl  m-4"style={{ margin: "0.25rem 0", marginLeft: "4rem" }}>
+                    해당 할 일을 주 몇 회 할지 설정해봅시다!
+                    </h3>
+                      </div>
+                      </div>
+                  </div>
+                )}
+
               <div class="mr-10 grow-0">
                주&nbsp;
                 <button onClick={toggleGoalOptionsPub}>
@@ -765,12 +1000,53 @@ const joinPublicTodo = async (publicTodoId) => {
                 </button>
               </div>
             </div>
-            {/* 퍼블릭 검색 아이콘 */}
             <div className="flex items-center ">
-                <button onClick={toggleSearchPopup} className="text-sm text-gray-500 mx-auto block">
-                  🔎 다른 할 일 찾아보기
+                <button onClick={toggleSearchPopup} className="text-sm text-gray-500 "
+                style={{ marginLeft: '40px' }}>
+                  🔎 다른 함께 할 일 찾아보기
+                  
+                </button>
+                {/* 다른 함께 할일 아이콘 */}
+      <button onClick={otherpublicPopup}>
+                ❓ 
                 </button>
               </div>
+          {/* 다른 함께 할일 팝업 */}
+          {otherpublicPopupOpen && (
+                  <div className="absolute top-0 left-0 z-10 flex items-center justify-center w-full h-full bg-gray-900 bg-opacity-50">
+                    <div className="flex justify-between mb-4">
+                      <div
+                    className="box"
+                    style={{
+                      position: "absolute",
+                      width: 550,
+                      height: 350,
+                      border: "2px solid #000",
+                      borderRadius: "15px",
+                      boxSizing: "border-box",
+                      transform: "translate(-50%,-50%)",
+                      backgroundColor: "#FFFFFF",
+                      boxShadow: "0px 2px 6px rgba(0, 0, 0, 0.6)",
+                      // padding: "10px",
+                    }}
+                  >
+                    <button onClick={otherpublicPopup}
+                    style={{ marginLeft: '5px' }}>
+                    X
+                      </button>
+                    <h2 className="text-2xl text-center m-4 font-bold"style={{marginTop: "-5px" }}>▶다른 함께 할 일 검색</h2>
+                    <h3 className="text-xl  m-4"style={{ margin: "0.20rem 0", marginLeft: "4rem", marginTop: "30px" }}>
+                    ● 할 일을 추가하기 전, 
+                    </h3>
+                    <h3 className="text-xl  m-4"style={{ margin: "0.25rem 0", marginLeft: "4rem" }}>
+                    해당 할 일을 주 몇 회 할지 설정해봅시다!
+                    </h3>
+                      </div>
+                      </div>
+                  </div>
+                )}
+            {/* 퍼블릭 검색 아이콘 */}
+            
               {/* 퍼블릭 검색 팝업 */}
       {isSearchPopupOpen && (
         <div className="absolute top-0 left-0 z-10 flex items-center justify-center w-full h-full bg-gray-900 bg-opacity-50">
@@ -796,7 +1072,7 @@ const joinPublicTodo = async (publicTodoId) => {
                   {!result.joined && (
                     <button onClick={() => joinPublicTodo(result.id)}
                     className="ml-auto">
-                      Join
+                      참여하기
                     </button>
                   )}
                 </li>
@@ -806,6 +1082,7 @@ const joinPublicTodo = async (publicTodoId) => {
           </div>
         </div>
       )}
+
 {/* 퍼블릭투두 리스트 */}
             <div>
             <h1 className="my-4 mx-5 text-xl text-left font-bold text-black-500">
@@ -848,7 +1125,46 @@ const joinPublicTodo = async (publicTodoId) => {
         </ul>
         </div>
                 {/* 퍼블릭 Todo 달성도 */}
-                <h2 className="my-4 mx-5 text-xl text-left font-bold text-black-500">함께 할 일 참여도</h2>
+                <h2 className="my-4 mx-5 text-xl text-left font-bold text-black-500">함께 할 일 참여도{/* 함께할일 참여도 아이콘 */}
+             <button onClick={publiccomPopup}>
+                ❓ 
+                </button>
+                </h2>
+          {/* 함께 할일 참여도 팝업 */}
+          {publiccomPopupOpen && (
+                  <div className="absolute top-0 left-0 z-10 flex items-center justify-center w-full h-full bg-gray-900 bg-opacity-50">
+                    <div className="flex justify-between mb-4">
+                      <div
+                    className="box"
+                    style={{
+                      position: "absolute",
+                      width: 550,
+                      height: 350,
+                      border: "2px solid #000",
+                      borderRadius: "15px",
+                      boxSizing: "border-box",
+                      transform: "translate(-50%,-50%)",
+                      backgroundColor: "#FFFFFF",
+                      boxShadow: "0px 2px 6px rgba(0, 0, 0, 0.6)",
+                      // padding: "10px",
+                    }}
+                  >
+                    <button onClick={publiccomPopup}
+                    style={{ marginLeft: '5px' }}>
+                    X
+                      </button>
+                    <h2 className="text-2xl text-center m-4 font-bold"style={{marginTop: "-5px" }}>▶함께 할 일 참여도</h2>
+                    <h3 className="text-xl  m-4"style={{ margin: "0.20rem 0", marginLeft: "4rem", marginTop: "30px" }}>
+                    ● 할 일을 추가하기 전, 
+                    </h3>
+                    <h3 className="text-xl  m-4"style={{ margin: "0.25rem 0", marginLeft: "4rem" }}>
+                    해당 할 일을 주 몇 회 할지 설정해봅시다!
+                    </h3>
+                      </div>
+                      </div>
+                  </div>
+                )}
+
                 <div>
                   <ul className="my-5 mx-10">
                 {publicTodos

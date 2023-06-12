@@ -666,7 +666,7 @@ const joinPublicTodo = async (publicTodoId) => {
                             key={todo.id}
                             todo={todo}
                             onToggle={() => toggleTodo(todo.id)}
-                            onDelete={() => deleteTodo(todo.id)}
+                            onDeletePer={() => deleteTodo(todo.id)}
                             
                           />
                         ))}
@@ -683,7 +683,7 @@ const joinPublicTodo = async (publicTodoId) => {
                               todo={todo}
                               weeklyGoal={weeklyGoal} // weeklyGoal prop 전달
                               onToggle={() => toggleTodo(todo.id)}
-                              onDelete={() => deleteTodo(todo.id)}  
+                              onDeletePer={() => deleteTodo(todo.id)}  
                             />
                           ))} 
                     </ul>                                      

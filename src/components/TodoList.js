@@ -235,21 +235,64 @@ const TodoList = () => {
       date: selectedDate,
       datetime: new Date(),
       isPublic: true,
-      administratorId: data?.user?.id, // Set the administrator ID
-      createdDate: new Date(), //리스트를 추가한 날짜 정보를 추가합니다.
-      weeklyGoal: inputGoalPub, //주간 목표 초기값 설정
-      weeklycompledted: 0, //주간 완료 횟수
-  });
+      administratorId: data?.user?.id,
+      createdDate: new Date(),
+      weeklyGoal: inputGoalPub,
+      weeklycompledted: 0,
+    });
+  
     const newPublicTodo = {
-      id: docRef.id, 
-      text: publicInput, 
-      completed: false, 
+      id: docRef.id,
+      text: publicInput,
+      completed: false,
       date: selectedDate,
-      createdDate: new Date(), //리스트를 추가한 날짜 정보를 추가합니다.
-      weeklyGoal: inputGoalPub, //주간 목표 초기값 설정
-      weeklycompledted: 0, //주간 완료 횟수
+      createdDate: new Date(),
+      weeklyGoal: inputGoalPub,
+      weeklycompledted: 0,
+    };
+  
+    setPublicTodos((prevPublicTodos) => {
+      const updatedPublicTodos = [...prevPublicTodos, newPublicTodo];
+      return updatedPublicTodos;
+    });
+  
+    const publicTodoDocRef = doc(publicTodoCollection, docRef.id);
+    const publicTodoSnapshot = await getDoc(publicTodoDocRef);
+  
+    if (publicTodoSnapshot.exists()) {
+      const publicTodoData = publicTodoSnapshot.data();
+      const currentUser = data?.user;
+  
+      if (
+        currentUser &&
+        publicTodoData.joinedUsers &&
+        publicTodoData.joinedUsers[currentUser.id]
+      ) {
+        return;
+      }
+  
+      const joinedUser = { completed: false };
+      const updatedJoinedUsers = {
+        ...(publicTodoData.joinedUsers || {}),
+        [currentUser.id]: joinedUser,
       };
-    setPublicTodos([...publicTodos, newPublicTodo]);
+  
+      await updateDoc(publicTodoDocRef, { joinedUsers: updatedJoinedUsers });
+  
+      setPublicTodos((prevPublicTodos) => {
+        const updatedPublicTodos = prevPublicTodos.map((todo) => {
+          if (todo.id === docRef.id) {
+            return {
+              ...todo,
+              joinedUsers: updatedJoinedUsers,
+            };
+          }
+          return todo;
+        });
+        return updatedPublicTodos;
+      });
+    }
+  
     setPublicInput("");
     setSelectedDate(null);
     setIsAdmin(true);
@@ -444,35 +487,49 @@ const TodoList = () => {
 
 
   
-  const joinPublicTodo = async (publicTodoId) => {
-    const publicTodoDocRef = doc(publicTodoCollection, publicTodoId);
-    const publicTodoSnapshot = await getDoc(publicTodoDocRef);
-  
-    if (publicTodoSnapshot.exists()) {
-      const publicTodoData = publicTodoSnapshot.data();
-  
-      // Get the current user's information
-      const currentUser = data?.user;
-  
-      // Check if the user has already joined
-      if (
-        currentUser &&
-        publicTodoData.joinedUsers &&
-        publicTodoData.joinedUsers[currentUser.id]
-      ) {
-        return;
-      }
-  
-      // Update the joinedUsers field
-      const joinedUser = { completed: false };
-      const updatedJoinedUsers = {
-        ...(publicTodoData.joinedUsers || {}),
-        [currentUser.id]: joinedUser,
-      };
-  
-      await updateDoc(publicTodoDocRef, { joinedUsers: updatedJoinedUsers });
+const joinPublicTodo = async (publicTodoId) => {
+  const publicTodoDocRef = doc(publicTodoCollection, publicTodoId);
+  const publicTodoSnapshot = await getDoc(publicTodoDocRef);
+
+  if (publicTodoSnapshot.exists()) {
+    const publicTodoData = publicTodoSnapshot.data();
+
+    // Get the current user's information
+    const currentUser = data?.user;
+
+    // Check if the user has already joined
+    if (
+      currentUser &&
+      publicTodoData.joinedUsers &&
+      publicTodoData.joinedUsers[currentUser.id]
+    ) {
+      return;
     }
-  };
+
+    // Update the joinedUsers field
+    const joinedUser = { completed: false };
+    const updatedJoinedUsers = {
+      ...(publicTodoData.joinedUsers || {}),
+      [currentUser.id]: joinedUser,
+    };
+
+    await updateDoc(publicTodoDocRef, { joinedUsers: updatedJoinedUsers });
+
+    // Update the publicTodos state with the updated joinedUsers
+    setPublicTodos((prevPublicTodos) => {
+      const updatedPublicTodos = prevPublicTodos.map((todo) => {
+        if (todo.id === publicTodoId) {
+          return {
+            ...todo,
+            joinedUsers: updatedJoinedUsers,
+          };
+        }
+        return todo;
+      });
+      return updatedPublicTodos;
+    });
+  }
+};
     
   const toggleJoinedTodo = async (publicTodoId) => {
     const publicTodoDocRef = doc(publicTodoCollection, publicTodoId);

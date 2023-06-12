@@ -1,22 +1,22 @@
 //날짜 함수
 export const today = () => {
     let now = new Date(); //현재 날짜 및 시간
-    const month = new Array('January','February', 'March', 'April','May','June','July','August','September','October','November','December');
+    const month = new Array('1월','2월', '3월', '4월','5월','6월','7월','8월','9월','10월','11월','12월');
     let todayMonth = month[now.getMonth()];
     let todayDate = now.getDate() // 현재 날짜
-    const week = new Array('Sunday', 'Monday', 'Tuesday','Wednesday','Thursday','Friday','Saturday');
+    const week = new Array('일요일', '월요일', '화요일','수요일','목요일','금요일','토요일');
     let dayWeek = week[now.getDay()]; //weekday에 지정된 날짜의 요일(0~6)반환
   
-    let daySuffix = 'th';
+    let daySuffix = '일';
     if (todayDate === 1 || todayDate === 21 || todayDate === 31) {
-      daySuffix = 'st';
+      daySuffix = '일';
     } else if (todayDate === 2 || todayDate === 22) {
-      daySuffix = 'nd';
+      daySuffix = '일';
     } else if (todayDate === 3 || todayDate === 23) {
-      daySuffix = 'rd';
+      daySuffix = '일';
     }
   
-    return dayWeek + ', ' + todayMonth + ' ' + todayDate + daySuffix;
+    return todayMonth + ' ' + todayDate + daySuffix + ', ' + dayWeek ;
   };
 
 //주간 범위를 구하는 함수

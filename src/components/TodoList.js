@@ -202,6 +202,7 @@ const TodoList = () => {
       text: input, 
       completed: false, 
       date: selectedDate, 
+      datetime: new Date(),
       createdDate: new Date(), // 리스트를 추가한 날짜 정보를 추가합니다.
       weeklyGoal: inputGoal, // 주간 목표 초기값 설정
       weeklyCompleted: 0, // 주간 완료 횟수

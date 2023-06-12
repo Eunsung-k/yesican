@@ -94,3 +94,25 @@ button.addButton:hover {
   float: right;
 }
 
+.loginPage {
+  width: 750px;
+  margin: 20px auto;
+  padding: 20px;
+  /* background-color: #FFD0D0; */
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  position: relative;
+  background-image: url("/images/loginbg.png");
+  background-size: 750px;
+  background-position: 750px 10px;
+}
+.loginPageText {
+  max-width: 300px;
+  margin: 20px auto;
+  padding: 20px;
+  background-color: #FFD0D0;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+

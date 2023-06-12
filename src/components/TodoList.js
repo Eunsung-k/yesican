@@ -51,6 +51,8 @@ const TodoList = () => {
 
   const [isAdmin, setIsAdmin] = useState(false); // Add isAdmin state
 
+  const [isSearchPopupOpen, setIsSearchPopupOpen] = useState(false); // 퍼블릭 검색 팝업 상태 변수
+
 
 //Personal Todo 달성도 
   const personalCompletionPercentage = () => {
@@ -97,6 +99,11 @@ const TodoList = () => {
       completedCount,
       totalCount,
     };
+  };
+
+  //팝업
+  const toggleSearchPopup = () => {
+    setIsSearchPopupOpen(!isSearchPopupOpen);
   };
 
   //검색
@@ -561,84 +568,131 @@ const TodoList = () => {
         </div>
       </div>
 
-    {/* 날짜 */}
-      <div className="container mx auto ">
-        <div class="border-solid border-2 border-black ...">
-          <h1 className="text-xl text-center py-5 font-bold text-black-500 bg-white">
-            {today()}
-         </h1>
-        </div>
-      </div>
-    
-    {/*Public todo, personal todo*/}
-    <div className="container mx auto">
-      <div class="flex flex-row">
-        <div class="mr-1.5 my-3 basis-1/2 border-solid border-2 border-black ... bg-white">
-          {/*퍼블릭투두*/}
-          <h1 className="my-5 mx-5 text-2xl text-left font-bold text-black-500">
-            Public Todo
+      {/* 날짜 */}
+        <div className="container mx auto ">
+          <div class="border-solid border-2 border-black ...">
+            <h1 className="text-xl text-center py-5 font-bold text-black-500 bg-white">
+              {today()}
           </h1>
-          {/*퍼블릭 투두 검색*/}
-          <input
-          type="text"
-          className="mx-5 p-1 mb-4 border border-black-300 rounded"
-          value={searchInput}
-          onChange={(e) => setSearchInput(e.target.value)}
-          placeholder="public todo 검색" // 검색창에 연한 회색 글씨 띄우기
-          />
-          <div className="">
-            <ul className="mx-5 my-5 ">
-             {searchResults.map((result) => (
-               <li key={result.id}>
-                 <div>
-                  <span>{result.text}</span>
-                 </div>
-                 <div>
-                    {!result.joined && (
-                    <button
-                      onClick={() => {
-                      joinPublicTodo(result.id);}}
-                       >
-                      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Join
-                   </button>
-                   )}
-                 </div>
-
-
-                </li>
-              ))}
-           </ul>
           </div>
-
-
         </div>
-
-        {/*퍼블릭 투두 리스트, 퍼스널 투두 리스트*/}
-        <div class="ml-1.5 my-3 basis-1/2 border-solid border-2 border-black ... bg-white">
-          {/*퍼블릭 투두 리스트*/}
-          <div>
+    
+      {/*personal todo*/}
+      <div className="container mx auto">
+        <div class="flex flex-row">
+          <div class="mr-1.5 my-3 basis-1/2 border-solid border-2 border-black ... bg-white">
+            {/*퍼스널투두*/}
             <h1 className="my-5 mx-5 text-2xl text-left font-bold text-black-500">
-              Public
+              Personal Todo
             </h1>
-            <ul className="mx-10 my-10">
-             {publicTodos
-              .filter((publicTodo) => publicTodo.joinedUsers && publicTodo.joinedUsers[data?.user.id])
-              .filter((publicTodo) => !publicTodo.joinedUsers[data?.user.id].completed)
-              .map(todo => (
-                
-                <TodoItem
-                   key={todo.id}
-                   todo={todo}
-                   onToggle={() => toggleJoinedTodo(todo.id)}
-                   currentUserId={data?.user.id}
-                   onDeletePub={() => deleteMyPublicTodo(todo.id)}
-                  />
-                 ))}
-                 
-            </ul>
-              
+            
+            <div class="flex items-center">
+              <div class=" mr-10 grow">
+                {/* 퍼스널 투두 입력창 */}
+                <input
+                type="text"
+                className="mx-10 my-4 shadow-lg w-10/12 p-1 mb-4 border border-gray-300 rounded"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder="personal todo 입력" // 검색창에 연한 회색 글씨 띄우기
+                />
+              </div>
+                <div class=" mr-10 grow-0">
+                  주&nbsp;
+                  <button onClick={toggleGoalOptions}>
+                  {inputGoal ? inputGoal : "n"}회
+                  </button>
+                  {isGoalOptionsOpen && (
+                    <ul>
+                      {[1, 2, 3, 4, 5, 6, 7].map((num) => (
+                        <li key={num} onClick={() => handleGoalSelect(num)}>
+                        {num}
+                      </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+                <div>
+                  <button class="bg-gray-900 text-white font-bold mx-4 my-4 py-2 px-4 rounded-full"
+                  onClick={() => {addTodo();}}
+                  >
+                  add todo
+                  </button>
+                </div>
+                </div>
+                {/*퍼스널 투두 리스트*/}
+                <div>
+                <h1 className="my-5 mx-5 text-2xl text-left font-bold text-black-500">
+                    할 일 목록
+                  </h1>
+                  {/* 퍼스널 투두 리스트 목록 */}
+                  <div class=" mr-10 grow-0">
+                    <ul>
+                    {todos
+                        .filter((todo) => !todo.completed)
+                        .map((todo) => (
+                          <TodoItem
+                            key={todo.id}
+                            todo={todo}
+                            onToggle={() => toggleTodo(todo.id)}
+                            onDelete={() => deleteTodo(todo.id)}
+                            
+                          />
+                        ))}
+                    </ul>
+                  </div>
+                  {/* 퍼스널 컴플리트 투두 목록 */}
+                  <div className=" w-3/3">
+                    <ul>
+                      {todos
+                          .filter((todo) => todo.completed)
+                          .map((todo) => (
+                            <TodoItem
+                              key={todo.id}
+                              todo={todo}
+                              weeklyGoal={weeklyGoal} // weeklyGoal prop 전달
+                              onToggle={() => toggleTodo(todo.id)}
+                              onDelete={() => deleteTodo(todo.id)}  
+                            />
+                          ))} 
+                    </ul>                                      
+                  </div> 
+                </div>
+                {/* 퍼스널 Todo 달성도 */}
+                <div className="w-3/3"></div>
+                <h2 className="my-5 mx-5 text-2xl text-left font-bold text-black-500">Personal Todo 달성도</h2>
+                <div className="my-5 mx-10">
+                  <svg viewBox="0 0 800 50">
 
-              <ul className="my-5 mx-10">
+                    <rect
+                      x="0"
+                      y="0"
+                      width="800"
+                      height="45"
+                      fill="#e6e6e6"
+                      rx="10"
+                    />
+                    <rect
+                      x="0"
+                      y="0"
+                      width={personalCompletionPercentage()}
+                      height="45"
+                      fill="#ec4899"
+                      rx="10"
+                    />
+                    <text
+                      x={personalCompletionPercentage() - 100}
+                      y="55%"
+                      dominantBaseline="middle"
+                      textAnchor="start"
+                      fontSize="30"
+                    >
+                      {personalCompletionPercentageindex()}%
+                      </text>
+                    </svg>
+                  </div>
+
+                  {/* <ul className="my-5 mx-10">
                 {publicTodos
                   .filter((publicTodo) => publicTodo.joinedUsers && publicTodo.joinedUsers[data?.user.id])
                   .map((publicTodo) => {
@@ -660,8 +714,15 @@ const TodoList = () => {
                      </li>
                     );
                   })}
-              </ul>
+              </ul> */}
+              </div>
 
+              <div class="mr-1.5 my-3 basis-1/2 border-solid border-2 border-black ... bg-white">
+            {/*퍼블릭투두*/}
+            <h1 className="my-5 mx-5 text-2xl text-left font-bold text-black-500">
+              Public Todo
+            </h1>
+            
             <div className="flex items-center">
               <div class="mr=10 grow">
                 {/* 퍼블릭 투두 추가창 */}
@@ -673,6 +734,7 @@ const TodoList = () => {
                 placeholder="public todo를 목록에 추가" // 검색창에 연한 회색 글씨 띄우기
                 />
               </div>
+          
               <div class="mr-10 grow-0">
                주&nbsp;
                 <button onClick={toggleGoalOptionsPub}>
@@ -696,225 +758,66 @@ const TodoList = () => {
                 </button>
               </div>
             </div>
-        </div>
-
-
-          {/*퍼스널 투두 리스트*/}
-          <div>
-           <h1 className="my-5 mx-5 text-2xl text-left font-bold text-black-500">
-              Personal
-            </h1>
-            {/* 퍼스널 투두 리스트 목록 */}
-        <ul className="mx-10 my-10">
-          {todos
-              .filter((todo) => !todo.completed)
-              .map((todo) => (
-                <TodoItem
-                  key={todo.id}
-                  todo={todo}
-                  onToggle={() => toggleTodo(todo.id)}
-                  onDelete={() => deleteTodo(todo.id)}
-                  
-                />
-              ))}
-        </ul>
-          </div>
-          <div class="flex items-center">
-            <div class=" mr-10 grow">
-              {/* 퍼스널 투두 입력창 */}
-               <input
-               type="text"
-               className="mx-10 my-4 shadow-lg w-10/12 p-1 mb-4 border border-gray-300 rounded"
-               value={input}
-               onChange={(e) => setInput(e.target.value)}
-              placeholder="personal todo 입력" // 검색창에 연한 회색 글씨 띄우기
-              />
-             </div>
-              <div class=" mr-10 grow-0">
-                주&nbsp;
-                <button onClick={toggleGoalOptions}>
-                {inputGoal ? inputGoal : "n"}회
+            {/* 퍼블릭 검색 아이콘 */}
+            <div className="flex items-center">
+                <button onClick={toggleSearchPopup} className="text-sm text-gray-500">
+                  🔎 다른 할 일 찾아보기
                 </button>
-                {isGoalOptionsOpen && (
-                   <ul>
-                     {[1, 2, 3, 4, 5, 6, 7].map((num) => (
-                      <li key={num} onClick={() => handleGoalSelect(num)}>
-                      {num}
-                     </li>
-                     ))}
-                  </ul>
-                 )}
-               </div>
-               <div>
-                <button class="bg-gray-900 text-white font-bold mx-4 my-4 py-2 px-4 rounded-full"
-                onClick={() => {addTodo();}}
-                >
-                 add todo
-                </button>
-               </div>
               </div>
+              {/* 퍼블릭 검색 팝업 */}
+      {isSearchPopupOpen && (
+        <div className="absolute top-0 left-0 z-10 flex items-center justify-center w-full h-full bg-gray-900 bg-opacity-50">
+          <div className="bg-white p-4 rounded shadow-lg">
+          <div className="flex justify-between mb-4">
+            <button onClick={toggleSearchPopup}>
+            X
+            </button>
             </div>
-          </div>
-       </div>
-
-
-
-
-
-
-
-
-      {/* 타이틀 및 날짜 */}
-      <h1 className="text-2xl mt-10 font-bold  text-pink-500">
-        YES, "{data?.user?.name}" CAN DO!
-      </h1>
-      <h2 className="text-xl text-center my-10 font-bold text-black-500">
-        {today()} 
-        </h2>
-
-        
-        {/* 여기부터 퍼스널 투두 */}
-      <div className={styles.personalcontainer}>
-      <div className={styles.inputContainer}></div>
-      Personal Todo
-
-      {/* 퍼스널 투두 입력창 */}
-      <input
-        type="text"
-        className="shadow-lg w-full p-1 mb-4 border border-gray-300 rounded"
-        value={input}
-        onChange={(e) => setInput(e.target.value)}
-        placeholder="personal todo 입력" // 검색창에 연한 회색 글씨 띄우기
-      />
-
-      {/*Personal Todo weeklyGoal test*/}
-      <div>
-        주
-        <button onClick={toggleGoalOptions}>
-          {inputGoal ? inputGoal : "n"}회
-        </button>
-        {isGoalOptionsOpen && (
-          <ul>
-            {[1, 2, 3, 4, 5, 6, 7].map((num) => (
-              <li key={num} onClick={() => handleGoalSelect(num)}>
-                {num}
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
-      
-
-      {/* 퍼스널 addtodo 버튼 */}
-      <div className="flex justify-end">
-      <button
-          className="w-40 justify-self-end p-1 mb-4 bg-pink-500 text-white border border-pink-500 rounded hover:bg-white hover:text-pink-500"
-          onClick={() => {
-            addTodo();
-          }}
-        >
-          Add Todo
-        </button>
-        </div>
-        {/* 퍼스널 투두 리스트 타이틀 */}
-        <div className="w-3/3 ">
-        <h2 className="text-lg font-medium mb-2">Personal Todo List</h2>
-        <h3 className="text-l font-medium mb-2">personal Todo 달성도</h3>
-         {/* 퍼스널 Todo 달성도 */}
-        <div className="flex items-center justify-center pr-10">
-        <svg viewBox="0 0 800 50">
-          <rect
-            x="0"
-            y="0"
-            width="800"
-            height="45"
-            fill="#e6e6e6"
-            rx="10"
-          />
-          <rect
-            x="0"
-            y="0"
-            width={personalCompletionPercentage()}
-            height="45"
-            fill="#ec4899"
-            rx="10"
-          />
-          <text
-            x={personalCompletionPercentage() - 100}
-            y="55%"
-            dominantBaseline="middle"
-            textAnchor="start"
-            fontSize="40"
-          >
-            {personalCompletionPercentageindex()}%
-            </text>
-          </svg>
-        </div>
-        {/* 퍼스널 투두 리스트 목록 */}
-        <ul>
-          {todos
-              .filter((todo) => !todo.completed)
-              .map((todo) => (
-                <TodoItem
-                  key={todo.id}
-                  todo={todo}
-                  onToggle={() => toggleTodo(todo.id)}
-                  onDelete={() => deleteTodo(todo.id)}
-                  
-                />
+            <input
+              type="text"
+              className="shadow-lg w-full p-1 mb-4 border border-gray-300 rounded"
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              placeholder="public todo 검색"
+            />
+            {/* 퍼블릭 검색 결과 목록 */}
+            <ul>
+              {searchResults.map((result) => (
+                <li key={result.id}>
+                  <span>{result.text}</span>
+                  {!result.joined && (
+                    <button onClick={() => joinPublicTodo(result.id)}
+                    className="ml-auto">
+                      Join
+                    </button>
+                  )}
+                </li>
               ))}
-        </ul>
-
-      {/* 퍼스널 컴플리트 투두 목록 */}
-      <div className=" w-3/3 pl-4">
-        <h2 className="text-lg font-medium mb-2">Completed Todo</h2>
-        <ul>
-          {todos
-              .filter((todo) => todo.completed)
-              .map((todo) => (
+            </ul>
+          </div>
+        </div>
+      )}
+{/* 퍼블릭투두 리스트 */}
+            <div>
+            <h1 className="my-5 mx-5 text-2xl text-left font-bold text-black-500">
+                    할 일 목록
+                  </h1>
+            <ul className="mx-10 my-10">
+             {publicTodos
+              .filter((publicTodo) => publicTodo.joinedUsers && publicTodo.joinedUsers[data?.user.id])
+              .filter((publicTodo) => !publicTodo.joinedUsers[data?.user.id].completed)
+              .map(todo => (
+                
                 <TodoItem
-                  key={todo.id}
-                  todo={todo}
-                  weeklyGoal={weeklyGoal} // weeklyGoal prop 전달
-                  onToggle={() => toggleTodo(todo.id)}
-                  onDelete={() => deleteTodo(todo.id)}  
-                />
-              ))} 
-        </ul>                                      
-      </div>  
-    </div>
-    </div>
-     {/* 여기까지 퍼스널 투두 */}
-
-    
-     {/* 여기부터 퍼블릭 투두  */}
-
-     {/* 퍼블릭 투두 리스트 목록 */}
-     <div className={styles.publictodolistcontainer}>
-        <div className="w-3/3">
-        <h2 className="text-lg font-medium mb-2">Public Todo List</h2>
-        <ul>
-          {publicTodos
-            .filter((publicTodo) => publicTodo.joinedUsers && publicTodo.joinedUsers[data?.user.id])
-            .filter((publicTodo) => !publicTodo.joinedUsers[data?.user.id].completed)
-            .map(todo => (
-              <TodoItem
-                  key={todo.id}
-                  todo={todo}
-                  onToggle={() => toggleJoinedTodo(todo.id)}
-                  //onDelete={() => deleteTodo(todo.id)}
-                  currentUserId={data?.user.id}
-                  onDeletePub={() => deleteMyPublicTodo(todo.id)}
-
-                />
-           ))}
-      </ul>
-      </div>
-
-      {/* 퍼블릭 컴플리트 투두 목록 */}
-      <div className="w-3/3 pl-4">
-        <h2 className="text-lg font-medium mb-2">Completed Todo</h2>
-        <ul>
+                   key={todo.id}
+                   todo={todo}
+                   onToggle={() => toggleJoinedTodo(todo.id)}
+                   currentUserId={data?.user.id}
+                   onDeletePub={() => deleteMyPublicTodo(todo.id)}
+                  />
+                 ))}   
+            </ul>
+            <ul>
           {publicTodos
               .filter((publicTodo) => publicTodo.joinedUsers && publicTodo.joinedUsers[data?.user.id])
               .filter((publicTodo) => publicTodo.joinedUsers[data?.user.id].completed)
@@ -930,106 +833,39 @@ const TodoList = () => {
               ))
             } 
         </ul>
-      </div>
-    </div>
-
-    {/* 퍼블릭 투두 검색창 */}
-     <div className={styles.publictodocontainer}>
-    <div className={styles.inputContainer}></div>
-      Public Todo
-      <input
-       type="text"
-       className="shadow-lg w-full p-1 mb-4 border border-gray-300 rounded"
-       value={searchInput}
-       onChange={(e) => setSearchInput(e.target.value)}
-       placeholder="public todo 검색" // 검색창에 연한 회색 글씨 띄우기
-    />
-
-      {/* 퍼블릭 검색 결과 목록 */}
-      <ul>
-        {searchResults.map((result) => (
-          <li key={result.id}>
-          <span>{result.text}</span>
-          {!result.joined && (
-            <button 
-              onClick={() => {
-                joinPublicTodo(result.id);}}
-            >
-              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Join
-            </button>
-          )}
-        </li>
-        ))}
-      </ul>
-
-      {/* 퍼블릭 투두 추가창 */}
-      <input
-        type="text"
-        className="shadow-lg w-full p-1 mb-4 border border-gray-300 rounded"
-        value={publicInput}
-        onChange={(e) => setPublicInput(e.target.value)}
-        placeholder="public todo를 목록에 추가" // 검색창에 연한 회색 글씨 띄우기
-      />
-
-      {/* 퍼블릭 날짜 및 시간 선택 버튼 */}
-      <input
-        type="date"
-        className={styles.itemInput}
-        value={selectedDate}
-        //onChange={(e) => setSelectedDate(e.target.value)} 
-        />
-      <input
-        type="time"
-        className={styles.itemInput}
-        //onChange={(e) => setSelectedTime(e.target.value)}
-      />
-
-      {/* 퍼블릭 addtodo 버튼 */}
-      <div className="flex justify-end">
-      <button
-          className="w-40 justify-self-end p-1 mb-4 bg-pink-500 text-white border border-pink-500 rounded hover:bg-white hover:text-pink-500"
-          onClick={() => {
-            const promise = addPublicTodo();
-            promise.then((doc_id) => joinPublicTodo(doc_id));
-          }}
-        >
-          Add Todo
-        </button>
         </div>
-     
-      <div class="grid">
-       {/* 퍼블릭 Todo 달성도 */}
-      <div className="w-3/3 pl-4">
-        <h2 className="text-lg font-medium mb-2">Public Todo 달성도</h2>
-        <ul>
-          {publicTodos
-            .filter((publicTodo) => publicTodo.joinedUsers && publicTodo.joinedUsers[data?.user.id])
-            .map((publicTodo) => {
-              const { completedCount, totalCount } = calculatePublicTodoCompletion(publicTodo);
-              const completionPercentage = totalCount !== 0 ? Math.round((completedCount / totalCount) * 100) : 0;
-              const displayText = `${completedCount}/${totalCount}`;
-              return (
-                <li key={publicTodo.id} className="flex items-center mb-2">
-                  <span className="w-1/2">{publicTodo.text} : {displayText} (완료/전체)</span>
+      
+                {/* 퍼블릭 Todo 달성도 */}
+                <div>
+                  <ul className="my-5 mx-10">
+                {publicTodos
+                  .filter((publicTodo) => publicTodo.joinedUsers && publicTodo.joinedUsers[data?.user.id])
+                  .map((publicTodo) => {
+                    const { completedCount, totalCount } = calculatePublicTodoCompletion(publicTodo);
+                    const completionPercentage = totalCount !== 0 ? Math.round((completedCount / totalCount) * 100) : 0;
+                    const displayText = `${completedCount}/${totalCount}`;
+                    return (
+                      <li key={publicTodo.id} className="flex items-center mb-2">
+                        <span className="w-1/2">{publicTodo.text} : {displayText} (완료/전체)</span>
 
-                  <div className="w-1/2 flex items-center">
-                    <div className="relative w-full h-4 bg-gray-300 rounded">
-                      <div
-                        className="absolute top-0 left-0 h-full bg-pink-500 rounded"
-                        style={{ width: `${completionPercentage}%` }}
-                      ></div>
-                    </div>
-                    <span className="ml-2">{completionPercentage}%</span>
-                  </div>
-                </li>
-            );
-          })}
-        </ul>
-      </div>
-      </div>
-      </div>
-    {/* 여기까지 퍼블릭 투두 */}
-  </div>
+                        <div className="w-1/2 flex items-center">    
+                          <div className="relative w-full h-4 bg-gray-300 rounded">
+                             <div className="absolute top-0 left-0 h-full bg-pink-500 rounded"
+                                style={{ width: `${completionPercentage}%` }}> 
+                               </div>
+                            </div>
+                         <span className="ml-2">{completionPercentage}%</span>
+                       </div>
+                     </li>
+                    );
+                  })}
+              </ul>
+              </div>
+              </div>
+    
+            </div>
+          </div>
+       </div>
   );
 }
 export default TodoList;

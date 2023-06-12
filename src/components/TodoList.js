@@ -3,6 +3,7 @@ import { signOut, useSession } from "next-auth/react";
 import TodoItem from "@/components/TodoItem";
 import { today, getMidnight, weekRange } from "@/utils";
 import styles from "@/styles/TodoList.module.css";
+import Head from 'next/head';
 
 import { db } from "@/firebase";
 
@@ -619,6 +620,7 @@ const joinPublicTodo = async (publicTodoId) => {
    
     
   return (
+  <div style = {{ fontFamily: 'SUITE-Regular'}}>
     <div className="container py-4 mx-auto px-4">
       {/* 로그아웃 버튼 */}
       <div className="w-1/2 pr-4">
@@ -1198,6 +1200,7 @@ const joinPublicTodo = async (publicTodoId) => {
               </div>
             </div>
           </div>
+       </div>
        </div>
   );
 }

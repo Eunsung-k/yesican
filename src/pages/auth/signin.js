@@ -7,6 +7,7 @@ import { useRouter } from "next/router";
    const { data: session } = useSession();
 
    return (
+    <div style = {{ fontFamily: 'SUITE-Regular'}}>
      <div className="flex justify-center h-screen">
        {session ? (
          <div className={styles.loginPage}>  
@@ -124,6 +125,7 @@ import { useRouter } from "next/router";
   </div>      
          </div>
        )}
+     </div>
      </div>
    );
  }

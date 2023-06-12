@@ -620,13 +620,14 @@ const TodoList = () => {
                   </button>
                 </div>
                 </div>
+                <div className="text-sm text-white mx-auto block">____</div>
                 {/*퍼스널 투두 리스트*/}
                 <div>
-                <h1 className="my-5 mx-5 text-2xl text-left font-bold text-black-500">
+                <h1 className="my-4 mx-5 text-xl text-left font-bold text-black-500">
                     할 일 목록
                   </h1>
                   {/* 퍼스널 투두 리스트 목록 */}
-                  <div class=" mr-10 grow-0">
+                  <div class="mx-10">
                     <ul>
                     {todos
                         .filter((todo) => !todo.completed)
@@ -660,7 +661,7 @@ const TodoList = () => {
                 </div>
                 {/* 퍼스널 Todo 달성도 */}
                 <div className="w-3/3"></div>
-                <h2 className="my-5 mx-5 text-2xl text-left font-bold text-black-500">Personal Todo 달성도</h2>
+                <h2 className="my-4 mx-5 text-xl text-left font-bold text-black-500">Personal Todo 달성도</h2>
                 <div className="my-5 mx-10">
                   <svg viewBox="0 0 800 50">
 
@@ -691,30 +692,6 @@ const TodoList = () => {
                       </text>
                     </svg>
                   </div>
-
-                  {/* <ul className="my-5 mx-10">
-                {publicTodos
-                  .filter((publicTodo) => publicTodo.joinedUsers && publicTodo.joinedUsers[data?.user.id])
-                  .map((publicTodo) => {
-                    const { completedCount, totalCount } = calculatePublicTodoCompletion(publicTodo);
-                    const completionPercentage = totalCount !== 0 ? Math.round((completedCount / totalCount) * 100) : 0;
-                    const displayText = `${completedCount}/${totalCount}`;
-                    return (
-                      <li key={publicTodo.id} className="flex items-center mb-2">
-                        <span className="w-1/2">{publicTodo.text} : {displayText} (완료/전체)</span>
-
-                        <div className="w-1/2 flex items-center">    
-                          <div className="relative w-full h-4 bg-gray-300 rounded">
-                             <div className="absolute top-0 left-0 h-full bg-pink-500 rounded"
-                                style={{ width: `${completionPercentage}%` }}> 
-                               </div>
-                            </div>
-                         <span className="ml-2">{completionPercentage}%</span>
-                       </div>
-                     </li>
-                    );
-                  })}
-              </ul> */}
               </div>
 
               <div class="mr-1.5 my-3 basis-1/2 border-solid border-2 border-black ... bg-white">
@@ -759,8 +736,8 @@ const TodoList = () => {
               </div>
             </div>
             {/* 퍼블릭 검색 아이콘 */}
-            <div className="flex items-center">
-                <button onClick={toggleSearchPopup} className="text-sm text-gray-500">
+            <div className="flex items-center ">
+                <button onClick={toggleSearchPopup} className="text-sm text-gray-500 mx-auto block">
                   🔎 다른 할 일 찾아보기
                 </button>
               </div>
@@ -799,22 +776,22 @@ const TodoList = () => {
       )}
 {/* 퍼블릭투두 리스트 */}
             <div>
-            <h1 className="my-5 mx-5 text-2xl text-left font-bold text-black-500">
+            <h1 className="my-4 mx-5 text-xl text-left font-bold text-black-500">
                     할 일 목록
                   </h1>
-            <ul className="mx-10 my-10">
+            <ul className="mx-10">
              {publicTodos
               .filter((publicTodo) => publicTodo.joinedUsers && publicTodo.joinedUsers[data?.user.id])
               .filter((publicTodo) => !publicTodo.joinedUsers[data?.user.id].completed)
               .map(todo => (
-                
+                <li className="pl-4" key={todo.id}>
                 <TodoItem
-                   key={todo.id}
                    todo={todo}
                    onToggle={() => toggleJoinedTodo(todo.id)}
                    currentUserId={data?.user.id}
                    onDeletePub={() => deleteMyPublicTodo(todo.id)}
                   />
+                  </li>
                  ))}   
             </ul>
             <ul>
@@ -836,6 +813,7 @@ const TodoList = () => {
         </div>
       
                 {/* 퍼블릭 Todo 달성도 */}
+                <h2 className="my-4 mx-5 text-xl text-left font-bold text-black-500">Personal Todo 달성도</h2>
                 <div>
                   <ul className="my-5 mx-10">
                 {publicTodos
@@ -862,7 +840,6 @@ const TodoList = () => {
               </ul>
               </div>
               </div>
-    
             </div>
           </div>
        </div>

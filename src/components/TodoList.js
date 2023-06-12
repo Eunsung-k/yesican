@@ -1072,7 +1072,7 @@ const joinPublicTodo = async (publicTodoId) => {
                   {!result.joined && (
                     <button onClick={() => joinPublicTodo(result.id)}
                     className="ml-auto">
-                      Join
+                      참여하기
                     </button>
                   )}
                 </li>

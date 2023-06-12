@@ -9,7 +9,8 @@ import React from "react";
 import styles from "@/styles/TodoList.module.css";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"; //아이콘 불러오기
-import {faTrashCan} from "@fortawesome/free-regular-svg-icons"; //trashcan 아이콘 불러오기
+import {faTrashCan, faCircleXmark} from "@fortawesome/free-regular-svg-icons"; //trashcan 아이콘 불러오기
+import { faCheckSquare, faSpinner } from "@fortawesome/free-solid-svg-icons";
 
 
 
@@ -27,23 +28,34 @@ const TodoItem = ({ todo, onToggle, onDelete, currentUserId, onDeletePub, weekly
       <input type="checkbox" checked={isCompleted} onChange={onToggle} />
       <button onClick="완료했습니다."></button>
 
-      {/* 할 일의 텍스트를 렌더링하고, 완료 상태에 따라 텍스트에 취소선을 적용합니다. */}
-      <span
-        className={styles.todoText}
-        style={{ textDecoration: isCompleted ? "line-through" : "none" }}
-      >
-        {todo.text}
-      </span>
 
-      {/*weeklyGoal 렌더링*/}
-      <span> 주 {todo.weeklyGoal}회</span> 
-      &nbsp;
-      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-      {/* 삭제 버튼을 렌더링하고, 클릭 시 onDelete 함수를 호출하여 해당 할 일을 삭제합니다. */}
-      {onDelete && isGroupAdmin && <button onClick={onDelete}>삭제하기</button>}
-      {onDeletePub && <button onClick={onDeletePub}>할 일 삭제하기</button>}
-      {onDeletePer && <button onClick={onDeletePer}>할 일 삭제하기</button>}
+   
+          {/* 할 일의 텍스트를 렌더링하고, 완료 상태에 따라 텍스트에 취소선을 적용합니다. */}
+          <span
+            className={styles.todoText}
+            style={{ textDecoration: isCompleted ? "line-through" : "none" }}
+            >
+            {todo.text}
+           </span>
+           &nbsp;&nbsp;&nbsp;&nbsp;
+
+
+          {/*weeklyGoal 렌더링*/}
+          <span> 주 {todo.weeklyGoal}회</span> 
+           
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+
+          {/* 삭제 버튼을 렌더링하고, 클릭 시 onDelete 함수를 호출하여 해당 할 일을 삭제합니다. */}
+
+          {onDeletePub && <button onClick={onDeletePub}><FontAwesomeIcon icon={faTrashCan} /></button>}
+          {onDeletePer && <button onClick={onDeletePer}><FontAwesomeIcon icon={faTrashCan} /></button>}
+
+
+          {onDelete && isGroupAdmin && <button onClick={onDelete}><FontAwesomeIcon icon={faCircleXmark} /></button>}
+        
     </li>
+    
   );
 };
 

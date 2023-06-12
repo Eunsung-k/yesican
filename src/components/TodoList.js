@@ -724,7 +724,7 @@ const joinPublicTodo = async (publicTodoId) => {
                   </div>
               </div>
 
-              <div class="mr-1.5 my-3 basis-1/2 border-solid border-2 border-black ... bg-white">
+              <div class="ml-1.5 my-3 basis-1/2 border-solid border-2 border-black ... bg-white">
             {/*퍼블릭투두*/}
             <h1 className="my-5 mx-5 text-2xl text-left font-bold text-black-500">
               함께 할 일

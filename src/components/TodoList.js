@@ -703,7 +703,7 @@ const joinPublicTodo = async (publicTodoId) => {
                 className="mx-10 my-4 shadow-lg w-10/12 p-1 mb-4 border border-gray-300 rounded"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                placeholder="혼자 할 일 입력창 :" // 검색창에 연한 회색 글씨 띄우기
+                placeholder="혼자 할 일 추가" // 검색창에 연한 회색 글씨 띄우기
                 />
               </div>
                {/* 주n회 검색 아이콘 */}
@@ -923,7 +923,7 @@ const joinPublicTodo = async (publicTodoId) => {
                     ● 다른 함께 할 일 찾아보기에서 이미 존재하는 그룹에 들어갈 수도, 추가하기 버튼을 눌러 내가 직접 그룹을 만들 수도 있습니다. 
                     </h3>
                     <h3 className="text-xl  m-4"style={{margin: "0.20rem 0", marginLeft: "2rem",marginRight: "2rem"}}>
-                    ● '삭제하기'를 눌러 내가 만든 함께 할 일은 모든 사람들에게서 삭제할 수도, '할 일 삭제하기'를 눌러 내 목록에서만 삭제할 수도 있습니다.
+                    ● '🗑'를 눌러 내가 만든 함께 할 일은 모든 사람들에게서 삭제할 수도, '❌'를 눌러 내 목록에서만 삭제할 수도 있습니다.
                     </h3>
                       </div>
                       </div>
@@ -939,7 +939,7 @@ const joinPublicTodo = async (publicTodoId) => {
                 className="mx-10 my-4 shadow-lg w-10/12 p-1 mb-4 border border-gray-300 rounded"
                 value={publicInput}
                 onChange={(e) => setPublicInput(e.target.value)}
-                placeholder="함께 할 일을 다른 함께 할 일 목록에 추가 : " // 검색창에 연한 회색 글씨 띄우기
+                placeholder="함께 할 일 추가 " // 검색창에 연한 회색 글씨 띄우기
                 />
               </div>
            {/* 주n회 검색 아이콘 */}

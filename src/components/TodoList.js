@@ -232,7 +232,6 @@ const TodoList = () => {
       text: publicInput,
       completed: false,
       date: selectedDate,
-      datetime: new Date(),
       isPublic: true,
       administratorId: data?.user?.id, // Set the administrator ID
       createdDate: new Date(), //리스트를 추가한 날짜 정보를 추가합니다.
@@ -269,34 +268,6 @@ const TodoList = () => {
       const toggleGoalOptionsPub = () => {
         setIsGoalOptionsOpenPub(!isGoalOptionsOpenPub);
       };
-
-/* 
-  const toggleTodo = async (id, isPublic) => {
-    const collectionRef = isPublic ? publicTodoCollection : todoCollection;
-    const todoDocRef = doc(collectionRef, id);
-    const todoSnapshot = await getDoc(todoDocRef);
-
-    if (todoSnapshot.exists()) {
-      const todoData = todoSnapshot.data();
-      const updatedCompleted = !todoData.completed;
-      await updateDoc(todoDocRef, { completed: updatedCompleted });
-
-      if (isPublic) {
-        setPublicTodos(prevPublicTodos => {
-          return prevPublicTodos.map(todo =>
-            todo.id === id ? { ...todo, completed: updatedCompleted } : todo
-          );
-        });
-      } else {
-        setTodos(prevTodos => {
-          return prevTodos.map(todo =>
-            todo.id === id ? { ...todo, completed: updatedCompleted } : todo
-          );
-        });
-      }
-    }
-  };
-  */
 
   const toggleTodo = async (id, isPublic, weeklyGoal, weeklyCompleted) => {
     const collectionRef = isPublic ? publicTodoCollection : todoCollection;
@@ -627,7 +598,7 @@ const TodoList = () => {
                     할 일 목록
                   </h1>
                   {/* 퍼스널 투두 리스트 목록 */}
-                  <div class="mx-10">
+                  <div >
                     <ul>
                     {todos
                         .filter((todo) => !todo.completed)
@@ -643,7 +614,7 @@ const TodoList = () => {
                     </ul>
                   </div>
                   {/* 퍼스널 컴플리트 투두 목록 */}
-                  <div className=" w-3/3">
+                  <div>
                     <ul>
                       {todos
                           .filter((todo) => todo.completed)
@@ -758,6 +729,7 @@ const TodoList = () => {
               placeholder="public todo 검색"
             />
             {/* 퍼블릭 검색 결과 목록 */}
+            <div style={{ height: "400px", overflowY: "scroll" }}>
             <ul>
               {searchResults.map((result) => (
                 <li key={result.id}>
@@ -771,6 +743,7 @@ const TodoList = () => {
                 </li>
               ))}
             </ul>
+            </div>
           </div>
         </div>
       )}
@@ -779,21 +752,22 @@ const TodoList = () => {
             <h1 className="my-4 mx-5 text-xl text-left font-bold text-black-500">
                     할 일 목록
                   </h1>
-            <ul className="mx-10">
+            <div>
+            <ul>
              {publicTodos
               .filter((publicTodo) => publicTodo.joinedUsers && publicTodo.joinedUsers[data?.user.id])
               .filter((publicTodo) => !publicTodo.joinedUsers[data?.user.id].completed)
-              .map(todo => (
-                <li className="pl-4" key={todo.id}>
+              .map((todo) => (
                 <TodoItem
+                   key={todo.id}
                    todo={todo}
                    onToggle={() => toggleJoinedTodo(todo.id)}
                    currentUserId={data?.user.id}
                    onDeletePub={() => deleteMyPublicTodo(todo.id)}
                   />
-                  </li>
                  ))}   
             </ul>
+            </div>
             <ul>
           {publicTodos
               .filter((publicTodo) => publicTodo.joinedUsers && publicTodo.joinedUsers[data?.user.id])
@@ -803,7 +777,7 @@ const TodoList = () => {
                   key={todo.id}
                   todo={todo}
                   onToggle={() => toggleJoinedTodo(todo.id)}
-                  //onDelete={() => deleteTodo(todo.id)}
+                  // onDelete={() => deleteTodo(todo.id)}
                   currentUserId={data?.user.id}
                   onDeletePub={() => deleteMyPublicTodo(todo.id)}
                 />
@@ -811,7 +785,6 @@ const TodoList = () => {
             } 
         </ul>
         </div>
-      
                 {/* 퍼블릭 Todo 달성도 */}
                 <h2 className="my-4 mx-5 text-xl text-left font-bold text-black-500">Personal Todo 달성도</h2>
                 <div>
@@ -825,7 +798,6 @@ const TodoList = () => {
                     return (
                       <li key={publicTodo.id} className="flex items-center mb-2">
                         <span className="w-1/2">{publicTodo.text} : {displayText} (완료/전체)</span>
-
                         <div className="w-1/2 flex items-center">    
                           <div className="relative w-full h-4 bg-gray-300 rounded">
                              <div className="absolute top-0 left-0 h-full bg-pink-500 rounded"

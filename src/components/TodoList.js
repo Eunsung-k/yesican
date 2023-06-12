@@ -233,6 +233,7 @@ const TodoList = () => {
       text: publicInput,
       completed: false,
       date: selectedDate,
+      datetime: new Date(),
       isPublic: true,
       administratorId: data?.user?.id, // Set the administrator ID
       createdDate: new Date(), //리스트를 추가한 날짜 정보를 추가합니다.
